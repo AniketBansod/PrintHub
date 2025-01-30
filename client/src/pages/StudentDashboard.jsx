@@ -1,15 +1,40 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Printer, Clock, FileText, Settings, User, LogOut, Cloud, QrCode } from "lucide-react"
+import { Printer, Clock, FileText, Settings, User, LogOut, Cloud, ShoppingCart, History } from "lucide-react"
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard")
+  const [user, setUser] = useState({ name: "", email: "" })
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token")
+        const response = await fetch("http://localhost:5000/api/auth/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        const data = await response.json()
+        if (response.ok) {
+          setUser(data)
+        } else {
+          console.error(data.message)
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile:", error)
+      }
+    }
+
+    fetchProfile()
+  }, [])
 
   const menuItems = [
     { id: "dashboard", icon: User, label: "Dashboard" },
     { id: "newPrint", icon: Printer, label: "New Print" },
-    { id: "history", icon: Clock, label: "Print History" },
-    { id: "documents", icon: FileText, label: "My Documents" },
+    { id: "cart", icon: ShoppingCart, label: "Cart" },
+    { id: "orderHistory", icon: History, label: "Order History" },
     { id: "cloudStorage", icon: Cloud, label: "Cloud Storage" },
     { id: "settings", icon: Settings, label: "Settings" },
   ]
@@ -54,11 +79,12 @@ const StudentDashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold mb-6">Welcome, John Doe!</h1>
-        {activeTab === "dashboard" && <DashboardOverview />}
+        <h1 className="text-3xl font-bold mb-6">Welcome, {user.name}!</h1>
+       
+        {activeTab === "dashboard" && <DashboardOverview user={user} />}
         {activeTab === "newPrint" && <NewPrintSection />}
-        {activeTab === "history" && <PrintHistorySection />}
-        {activeTab === "documents" && <DocumentsSection />}
+        {activeTab === "cart" && <CartSection />}
+        {activeTab === "orderHistory" && <OrderHistorySection />}
         {activeTab === "cloudStorage" && <CloudStorageSection />}
         {activeTab === "settings" && <SettingsSection />}
       </main>
@@ -66,10 +92,10 @@ const StudentDashboard = () => {
   )
 }
 
-const DashboardOverview = () => (
+const DashboardOverview = ({ user }) => (
   <div>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-      <AccountInfoCard />
+      <AccountInfoCard user={user} />
       <QuickStatsCard />
       <RecentActivityCard />
     </div>
@@ -80,30 +106,17 @@ const DashboardOverview = () => (
   </div>
 )
 
-const AccountInfoCard = () => (
+const AccountInfoCard = ({ user }) => (
   <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
     <h2 className="text-xl font-semibold mb-4">Account Information</h2>
     <div className="space-y-2">
       <p>
-        <span className="text-gray-400">Name:</span> John Doe
+        <span className="text-gray-400">Name:</span> {user.name}
       </p>
       <p>
-        <span className="text-gray-400">Student ID:</span> 12345678
-      </p>
-      <p>
-        <span className="text-gray-400">Email:</span> john.doe@university.edu
-      </p>
-      <p>
-        <span className="text-gray-400">Print Credits:</span> <span className="text-amber-400 font-bold">500</span>
+        <span className="text-gray-400">Email:</span> {user.email}
       </p>
     </div>
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="mt-4 bg-amber-500 text-gray-900 py-2 px-4 rounded-md hover:bg-amber-400 transition duration-300 ease-in-out shadow-lg font-semibold"
-    >
-      Add Credits
-    </motion.button>
   </div>
 )
 
@@ -186,6 +199,7 @@ const PrintQuotaCard = () => (
 const NewPrintSection = () => {
   const [estimatedPrice, setEstimatedPrice] = useState(0)
   const [ecoSuggestion, setEcoSuggestion] = useState("")
+  const [cart, setCart] = useState([])
 
   const handlePrintOptionsChange = (e) => {
     // Implement real-time price estimation logic here
@@ -197,6 +211,21 @@ const NewPrintSection = () => {
     } else {
       setEcoSuggestion("")
     }
+  }
+
+  const addToCart = () => {
+    const newPrintJob = {
+      document: "Sample Document",
+      printer: "Library Printer",
+      copies: 1,
+      size: "A4",
+      color: "Black & White",
+      sides: "Single-sided",
+      pages: "1-5",
+      schedule: "Tomorrow, 2 PM",
+      price: estimatedPrice,
+    }
+    setCart([...cart, newPrintJob])
   }
 
   return (
@@ -324,113 +353,105 @@ const NewPrintSection = () => {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          type="submit"
+          type="button"
+          onClick={addToCart}
           className="w-full bg-amber-500 text-gray-900 py-2 px-4 rounded-md hover:bg-amber-400 transition duration-300 ease-in-out shadow-lg font-semibold"
         >
-          Submit Print Job
+          Add to Cart
         </motion.button>
       </form>
     </div>
   )
 }
 
-const PrintHistorySection = () => (
-  <div>
-    <h2 className="text-2xl font-semibold mb-4">Print History</h2>
-    <table className="w-full text-left border-collapse">
-      <thead>
-        <tr className="bg-gray-800">
-          <th className="p-2 border border-gray-700">Date</th>
-          <th className="p-2 border border-gray-700">Document</th>
-          <th className="p-2 border border-gray-700">Printer</th>
-          <th className="p-2 border border-gray-700">Size</th>
-          <th className="p-2 border border-gray-700">Color</th>
-          <th className="p-2 border border-gray-700">Pages</th>
-          <th className="p-2 border border-gray-700">Cost</th>
-          <th className="p-2 border border-gray-700">Status</th>
-          <th className="p-2 border border-gray-700">QR Code</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td className="p-2 border border-gray-700">2025-01-30</td>
-          <td className="p-2 border border-gray-700">Assignment.pdf</td>
-          <td className="p-2 border border-gray-700">Library Printer</td>
-          <td className="p-2 border border-gray-700">A4</td>
-          <td className="p-2 border border-gray-700">B&W</td>
-          <td className="p-2 border border-gray-700">1-5</td>
-          <td className="p-2 border border-gray-700">5 credits</td>
-          <td className="p-2 border border-gray-700">Ready for Pickup</td>
-          <td className="p-2 border border-gray-700">
-            <QrCode className="h-6 w-6 text-amber-400" />
-          </td>
-        </tr>
-        {/* Add more rows as needed */}
-      </tbody>
-    </table>
-  </div>
-)
+const CartSection = () => {
+  const [cart, setCart] = useState([
+    {
+      document: "Sample Document",
+      printer: "Library Printer",
+      copies: 1,
+      size: "A4",
+      color: "Black & White",
+      sides: "Single-sided",
+      pages: "1-5",
+      schedule: "Tomorrow, 2 PM",
+      price: 1.5,
+    },
+  ])
 
-const DocumentsSection = () => (
-  <div>
-    <h2 className="text-2xl font-semibold mb-4">My Documents</h2>
-    <ul className="space-y-2">
-      <li className="flex items-center justify-between bg-gray-800 p-3 rounded-md">
-        <span>Assignment.pdf</span>
+  const handlePayment = () => {
+    // Implement payment logic here
+    console.log("Payment processed")
+    // After payment, clear the cart and move items to order history
+    setCart([])
+  }
+
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold mb-4">Cart</h2>
+      {cart.length === 0 ? (
+        <p>Your cart is empty.</p>
+      ) : (
         <div>
+          <ul className="space-y-4">
+            {cart.map((item, index) => (
+              <li key={index} className="bg-gray-800 p-4 rounded-lg shadow-lg">
+                <h3 className="text-lg font-semibold mb-2">{item.document}</h3>
+                <p>Printer: {item.printer}</p>
+                <p>Copies: {item.copies}</p>
+                <p>Size: {item.size}</p>
+                <p>Color: {item.color}</p>
+                <p>Sides: {item.sides}</p>
+                <p>Pages: {item.pages}</p>
+                <p>Schedule: {item.schedule}</p>
+                <p className="text-amber-400 font-bold">Price: {item.price} credits</p>
+              </li>
+            ))}
+          </ul>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="text-amber-400 hover:text-amber-300 mr-2"
+            onClick={handlePayment}
+            className="mt-4 w-full bg-amber-500 text-gray-900 py-2 px-4 rounded-md hover:bg-amber-400 transition duration-300 ease-in-out shadow-lg font-semibold"
           >
-            Print
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-blue-400 hover:text-blue-300 mr-2"
-          >
-            Move to Cloud
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-red-400 hover:text-red-300"
-          >
-            Delete
+            Proceed to Payment
           </motion.button>
         </div>
-      </li>
-      <li className="flex items-center justify-between bg-gray-800 p-3 rounded-md">
-        <span>Lecture_Notes.docx</span>
-        <div>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-amber-400 hover:text-amber-300 mr-2"
-          >
-            Print
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-blue-400 hover:text-blue-300 mr-2"
-          >
-            Move to Cloud
-          </motion.button>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-red-400 hover:text-red-300"
-          >
-            Delete
-          </motion.button>
-        </div>
-      </li>
-      {/* Add more document items as needed */}
-    </ul>
-  </div>
-)
+      )}
+    </div>
+  )
+}
+
+const OrderHistorySection = () => {
+  const [orders, setOrders] = useState([
+    {
+      date: "2025-01-30",
+      items: ["Assignment.pdf", "Lecture_Notes.docx"],
+      total: 3.0,
+      status: "Completed",
+    },
+  ])
+
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold mb-4">Order History</h2>
+      {orders.length === 0 ? (
+        <p>No orders found.</p>
+      ) : (
+        <ul className="space-y-4">
+          {orders.map((order, index) => (
+            <li key={index} className="bg-gray-800 p-4 rounded-lg shadow-lg">
+              <h3 className="text-lg font-semibold mb-2">Order Date: {order.date}</h3>
+              <p>Items: {order.items.join(", ")}</p>
+              <p className="text-amber-400 font-bold">Total: {order.total} credits</p>
+              <p>Status: {order.status}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
 
 const CloudStorageSection = () => (
   <div>
