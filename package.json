@@ -1,0 +1,28 @@
+{
+  "name": "hackathon_nirman",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "backend": "cd backend && npm i && nodemon server.js",
+    "client": "cd client && npm i && npm run dev",
+    "dev": "concurrently -k  \"npm run backend\" \"npm run client\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tejaswini-41/Nirmaan_hackathon.git"
+  },
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "devDependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tejaswini-41/Nirmaan_hackathon/issues"
+  },
+  "homepage": "https://github.com/Tejaswini-41/Nirmaan_hackathon#readme"
+}
+
