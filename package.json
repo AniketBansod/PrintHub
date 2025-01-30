@@ -14,7 +14,8 @@
     "url": "git+https://github.com/Tejaswini-41/Nirmaan_hackathon.git"
   },
   "dependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "multer-storage-cloudinary": "^4.0.0"
   },
   "devDependencies": {},
   "keywords": [],
