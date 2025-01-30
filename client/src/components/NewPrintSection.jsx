@@ -19,6 +19,7 @@ const NewPrintSection = ({ priceSettings }) => {
       paperSize: "A4",
     })
     const [schedule, setSchedule] = useState("")
+    const [error, setError] = useState("")
     useEffect(() => {
         console.log("Updated Cart:", cart);
       }, [cart]);
@@ -59,44 +60,64 @@ const NewPrintSection = ({ priceSettings }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!file) {
+            setError("Please select a file");
+            return;
+        }
+
         const formData = new FormData();
         formData.append('file', file);
-        formData.append('copies', printOptions.copies);
-        formData.append('size', printOptions.paperSize);
-        formData.append('color', printOptions.color);
-        formData.append('sides', printOptions.sides);
-        formData.append('pages', printOptions.pages);
-        formData.append('schedule', schedule);
-        formData.append('estimatedPrice', estimatedPrice);
+        formData.append('copies', printOptions.copies || 1);
+        formData.append('size', printOptions.paperSize || 'A4');
+        formData.append('color', printOptions.color || 'Black & White');
+        formData.append('sides', printOptions.sides || 'Single-sided');
+        formData.append('pages', printOptions.pages || '1');
+        formData.append('schedule', schedule || 'Not specified');
+        formData.append('estimatedPrice', estimatedPrice || 0);
 
         try {
-          const response = await fetch('http://localhost:5000/api/print', {
-            method: 'POST',
-            body: formData,
-          });
-          const data = await response.json();
-          if (response.ok) {
-            setMessage(`Print job created successfully. Print ID: ${data.printId}`);
-            console.log("file uploaded successfully:", data);
-            console.log("API Response:", data);
+            const response = await fetch('http://localhost:5000/api/print', {
+                method: 'POST',
+                body: formData,
+            });
 
-            // Dispatch addToCart action
-            dispatch(addToCart({
-              id: data.printId,
-              file: file.name,
-              copies: printOptions.copies,
-              size: printOptions.paperSize,
-              color: printOptions.color,
-              sides: printOptions.sides,
-              pages: printOptions.pages,
-              schedule: schedule,
-              estimatedPrice: estimatedPrice
-            }));
-          } else {
-            setMessage(`Error: ${data.message}`);
-          }
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Error creating print job');
+            }
+
+            const data = await response.json();
+            
+            // Add to cart using Redux
+            dispatch(
+                addToCart({
+                    file: file.name,
+                    ...printOptions,
+                    schedule,
+                    estimatedPrice,
+                })
+            );
+
+            // Reset form
+            setFile(null);
+            setPrintOptions({
+                color: "Black & White",
+                pages: 0,
+                copies: 0,
+                sides: "Single-sided",
+                paperSize: "A4",
+            });
+            setSchedule("");
+            setEstimatedPrice(0);
+            setError("");
+
+            // Show success message
+            setMessage("Print job added to cart successfully!");
+            setTimeout(() => setMessage(""), 3000);
+
         } catch (error) {
-          setMessage(`Error: ${error.message}`);
+            console.error('Error:', error);
+            setError(error.message || 'Error adding print job');
         }
     };
 
@@ -221,6 +242,11 @@ const NewPrintSection = ({ priceSettings }) => {
           {message && (
             <div className="bg-blue-800 text-blue-100 p-3 rounded-md">
               <p>{message}</p>
+            </div>
+          )}
+          {error && (
+            <div className="bg-red-800 text-red-100 p-3 rounded-md">
+              <p>{error}</p>
             </div>
           )}
           <motion.button

@@ -47,38 +47,43 @@ app.use("/api/pricing", pricingRoutes);
 app.post('/api/print', upload.single('file'), async (req, res) => {
   try {
     const { copies, size, color, sides, pages, schedule, estimatedPrice } = req.body;
-    const printId = uuidv4();
+    const file = req.file;
 
-    // Validation check
-    if (!pages) {
-      return res.status(400).json({ message: 'Pages are required' });
+    if (!file) {
+      return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    // Upload file to Cloudinary
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      folder: 'print_jobs',
+    // Upload to cloudinary
+    const result = await cloudinary.uploader.upload(file.path, {
+      folder: 'prints',
+      resource_type: 'auto'
     });
 
-    console.log("File uploaded to Cloudinary:", result.secure_url);
+    // Generate a unique printId
+    const printId = uuidv4();
 
-    const newPrintJob = new PrintJob({
+    // Create new print job with all required fields
+    const printJob = new PrintJob({
       printId,
       file: result.secure_url,
-      copies,
-      size,
-      color,
-      sides,
-      pages,
-      schedule,
-      estimatedPrice
+      copies: copies || 1,
+      size: size || 'A4',
+      color: color || 'Black & White',
+      sides: sides || 'Single-sided',
+      pages: pages || '1',
+      schedule: schedule || 'Not specified', // Provide default value
+      estimatedPrice: estimatedPrice || 0
     });
 
-    await newPrintJob.save();
+    await printJob.save();
 
-    console.log({ message: 'Print job created successfully', printId })
+    res.status(201).json({ 
+      message: 'Print job created successfully', 
+      printId,
+      file: result.secure_url 
+    });
   } catch (error) {
     console.error('Error creating print job:', error);
-    console.log(error);
     res.status(500).json({ message: 'Error creating print job', error: error.message });
   }
 });
