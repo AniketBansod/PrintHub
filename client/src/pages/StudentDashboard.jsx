@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Printer, Clock, FileText, Settings, User, LogOut } from "lucide-react"
+import { Printer, Clock, FileText, Settings, User, LogOut, Cloud, QrCode } from "lucide-react"
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -10,6 +10,7 @@ const StudentDashboard = () => {
     { id: "newPrint", icon: Printer, label: "New Print" },
     { id: "history", icon: Clock, label: "Print History" },
     { id: "documents", icon: FileText, label: "My Documents" },
+    { id: "cloudStorage", icon: Cloud, label: "Cloud Storage" },
     { id: "settings", icon: Settings, label: "Settings" },
   ]
 
@@ -52,12 +53,13 @@ const StudentDashboard = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 p-8">
+      <main className="flex-1 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold mb-6">Welcome, John Doe!</h1>
         {activeTab === "dashboard" && <DashboardOverview />}
         {activeTab === "newPrint" && <NewPrintSection />}
         {activeTab === "history" && <PrintHistorySection />}
         {activeTab === "documents" && <DocumentsSection />}
+        {activeTab === "cloudStorage" && <CloudStorageSection />}
         {activeTab === "settings" && <SettingsSection />}
       </main>
     </div>
@@ -92,7 +94,7 @@ const AccountInfoCard = () => (
         <span className="text-gray-400">Email:</span> john.doe@university.edu
       </p>
       <p>
-        <span className="text-gray-400">Account Balance:</span> <span className="text-amber-400 font-bold">$15.50</span>
+        <span className="text-gray-400">Print Credits:</span> <span className="text-amber-400 font-bold">500</span>
       </p>
     </div>
     <motion.button
@@ -100,7 +102,7 @@ const AccountInfoCard = () => (
       whileTap={{ scale: 0.95 }}
       className="mt-4 bg-amber-500 text-gray-900 py-2 px-4 rounded-md hover:bg-amber-400 transition duration-300 ease-in-out shadow-lg font-semibold"
     >
-      Add Funds
+      Add Credits
     </motion.button>
   </div>
 )
@@ -138,11 +140,11 @@ const RecentActivityCard = () => (
         <span className="text-gray-400">2 hours ago</span>
       </li>
       <li className="flex justify-between items-center">
-        <span>Added $10 to balance</span>
+        <span>Added 100 print credits</span>
         <span className="text-gray-400">Yesterday</span>
       </li>
       <li className="flex justify-between items-center">
-        <span>Printed Lecture_Notes.docx</span>
+        <span>Uploaded Lecture_Notes.docx to cloud</span>
         <span className="text-gray-400">3 days ago</span>
       </li>
     </ul>
@@ -155,11 +157,11 @@ const UpcomingPrintsCard = () => (
     <ul className="space-y-2">
       <li className="flex justify-between items-center">
         <span>Research_Paper.pdf</span>
-        <span className="text-amber-400">Due in 2 days</span>
+        <span className="text-amber-400">Scheduled for tomorrow, 2 PM</span>
       </li>
       <li className="flex justify-between items-center">
         <span>Group_Project.ppt</span>
-        <span className="text-amber-400">Due in 5 days</span>
+        <span className="text-amber-400">Queued for printing</span>
       </li>
     </ul>
   </div>
@@ -181,97 +183,156 @@ const PrintQuotaCard = () => (
   </div>
 )
 
-const NewPrintSection = () => (
-  <div>
-    <h2 className="text-2xl font-semibold mb-4">New Print Job</h2>
-    <form className="space-y-4">
-      <div>
-        <label htmlFor="file" className="block text-sm font-medium text-gray-300 mb-2">
-          Upload Document
-        </label>
-        <input
-          type="file"
-          id="file"
-          className="block w-full text-sm text-gray-300
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-md file:border-0
-            file:text-sm file:font-semibold
-            file:bg-amber-500 file:text-gray-900
-            hover:file:bg-amber-400"
-        />
-      </div>
-      <div>
-        <label htmlFor="printer" className="block text-sm font-medium text-gray-300 mb-2">
-          Select Printer
-        </label>
-        <select
-          id="printer"
-          className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+const NewPrintSection = () => {
+  const [estimatedPrice, setEstimatedPrice] = useState(0)
+  const [ecoSuggestion, setEcoSuggestion] = useState("")
+
+  const handlePrintOptionsChange = (e) => {
+    // Implement real-time price estimation logic here
+    setEstimatedPrice(1.5) // Placeholder value
+
+    // Implement eco-friendly suggestions
+    if (e.target.name === "sides" && e.target.value === "single") {
+      setEcoSuggestion("Consider double-sided printing to save paper!")
+    } else {
+      setEcoSuggestion("")
+    }
+  }
+
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold mb-4">New Print Job</h2>
+      <form className="space-y-4">
+        <div>
+          <label htmlFor="file" className="block text-sm font-medium text-gray-300 mb-2">
+            Upload Document
+          </label>
+          <input
+            type="file"
+            id="file"
+            className="block w-full text-sm text-gray-300
+              file:mr-4 file:py-2 file:px-4
+              file:rounded-md file:border-0
+              file:text-sm file:font-semibold
+              file:bg-amber-500 file:text-gray-900
+              hover:file:bg-amber-400"
+          />
+        </div>
+        <div>
+          <label htmlFor="printer" className="block text-sm font-medium text-gray-300 mb-2">
+            Select Printer
+          </label>
+          <select
+            id="printer"
+            className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+          >
+            <option>Library Printer</option>
+            <option>Student Center Printer</option>
+            <option>Dorm Printer</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="copies" className="block text-sm font-medium text-gray-300 mb-2">
+            Number of Copies
+          </label>
+          <input
+            type="number"
+            id="copies"
+            name="copies"
+            min="1"
+            defaultValue="1"
+            onChange={handlePrintOptionsChange}
+            className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+          />
+        </div>
+        <div>
+          <label htmlFor="size" className="block text-sm font-medium text-gray-300 mb-2">
+            Paper Size
+          </label>
+          <select
+            id="size"
+            name="size"
+            onChange={handlePrintOptionsChange}
+            className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+          >
+            <option>A4</option>
+            <option>A3</option>
+            <option>Letter</option>
+            <option>Legal</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="color" className="block text-sm font-medium text-gray-300 mb-2">
+            Color Option
+          </label>
+          <select
+            id="color"
+            name="color"
+            onChange={handlePrintOptionsChange}
+            className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+          >
+            <option>Black & White</option>
+            <option>Color</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="sides" className="block text-sm font-medium text-gray-300 mb-2">
+            Sides
+          </label>
+          <select
+            id="sides"
+            name="sides"
+            onChange={handlePrintOptionsChange}
+            className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+          >
+            <option>Single-sided</option>
+            <option>Double-sided</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="pages" className="block text-sm font-medium text-gray-300 mb-2">
+            Pages to Print
+          </label>
+          <input
+            type="text"
+            id="pages"
+            name="pages"
+            placeholder="e.g., 1-5, 8, 11-13"
+            onChange={handlePrintOptionsChange}
+            className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+          />
+        </div>
+        <div>
+          <label htmlFor="schedule" className="block text-sm font-medium text-gray-300 mb-2">
+            Schedule Print Time
+          </label>
+          <input
+            type="datetime-local"
+            id="schedule"
+            name="schedule"
+            className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+          />
+        </div>
+        {ecoSuggestion && (
+          <div className="bg-green-800 text-green-100 p-3 rounded-md">
+            <p>{ecoSuggestion}</p>
+          </div>
+        )}
+        <div className="bg-amber-800 text-amber-100 p-3 rounded-md">
+          <p>Estimated Price: {estimatedPrice} credits</p>
+        </div>
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          type="submit"
+          className="w-full bg-amber-500 text-gray-900 py-2 px-4 rounded-md hover:bg-amber-400 transition duration-300 ease-in-out shadow-lg font-semibold"
         >
-          <option>Library Printer</option>
-          <option>Student Center Printer</option>
-          <option>Dorm Printer</option>
-        </select>
-      </div>
-      <div>
-        <label htmlFor="copies" className="block text-sm font-medium text-gray-300 mb-2">
-          Number of Copies
-        </label>
-        <input
-          type="number"
-          id="copies"
-          min="1"
-          defaultValue="1"
-          className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
-        />
-      </div>
-      <div>
-        <label htmlFor="size" className="block text-sm font-medium text-gray-300 mb-2">
-          Paper Size
-        </label>
-        <select
-          id="size"
-          className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
-        >
-          <option>A4</option>
-          <option>Letter</option>
-          <option>Legal</option>
-        </select>
-      </div>
-      <div>
-        <label htmlFor="color" className="block text-sm font-medium text-gray-300 mb-2">
-          Color Option
-        </label>
-        <select
-          id="color"
-          className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
-        >
-          <option>Black & White</option>
-          <option>Color</option>
-        </select>
-      </div>
-      <div>
-        <label htmlFor="pages" className="block text-sm font-medium text-gray-300 mb-2">
-          Pages to Print
-        </label>
-        <input
-          type="text"
-          id="pages"
-          placeholder="e.g., 1-5, 8, 11-13"
-          className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
-        />
-      </div>
-      <motion.button
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        type="submit"
-        className="w-full bg-amber-500 text-gray-900 py-2 px-4 rounded-md hover:bg-amber-400 transition duration-300 ease-in-out shadow-lg font-semibold"
-      >
-        Submit Print Job
-      </motion.button>
-    </form>
-  </div>
-)
+          Submit Print Job
+        </motion.button>
+      </form>
+    </div>
+  )
+}
 
 const PrintHistorySection = () => (
   <div>
@@ -287,6 +348,7 @@ const PrintHistorySection = () => (
           <th className="p-2 border border-gray-700">Pages</th>
           <th className="p-2 border border-gray-700">Cost</th>
           <th className="p-2 border border-gray-700">Status</th>
+          <th className="p-2 border border-gray-700">QR Code</th>
         </tr>
       </thead>
       <tbody>
@@ -297,8 +359,11 @@ const PrintHistorySection = () => (
           <td className="p-2 border border-gray-700">A4</td>
           <td className="p-2 border border-gray-700">B&W</td>
           <td className="p-2 border border-gray-700">1-5</td>
-          <td className="p-2 border border-gray-700">$0.50</td>
-          <td className="p-2 border border-gray-700">Completed</td>
+          <td className="p-2 border border-gray-700">5 credits</td>
+          <td className="p-2 border border-gray-700">Ready for Pickup</td>
+          <td className="p-2 border border-gray-700">
+            <QrCode className="h-6 w-6 text-amber-400" />
+          </td>
         </tr>
         {/* Add more rows as needed */}
       </tbody>
@@ -323,6 +388,13 @@ const DocumentsSection = () => (
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            className="text-blue-400 hover:text-blue-300 mr-2"
+          >
+            Move to Cloud
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="text-red-400 hover:text-red-300"
           >
             Delete
@@ -342,6 +414,13 @@ const DocumentsSection = () => (
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
+            className="text-blue-400 hover:text-blue-300 mr-2"
+          >
+            Move to Cloud
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             className="text-red-400 hover:text-red-300"
           >
             Delete
@@ -349,6 +428,53 @@ const DocumentsSection = () => (
         </div>
       </li>
       {/* Add more document items as needed */}
+    </ul>
+  </div>
+)
+
+const CloudStorageSection = () => (
+  <div>
+    <h2 className="text-2xl font-semibold mb-4">Cloud Storage</h2>
+    <ul className="space-y-2">
+      <li className="flex items-center justify-between bg-gray-800 p-3 rounded-md">
+        <span>Resume.pdf</span>
+        <div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="text-amber-400 hover:text-amber-300 mr-2"
+          >
+            Print
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="text-red-400 hover:text-red-300"
+          >
+            Delete
+          </motion.button>
+        </div>
+      </li>
+      <li className="flex items-center justify-between bg-gray-800 p-3 rounded-md">
+        <span>ID_Card.jpg</span>
+        <div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="text-amber-400 hover:text-amber-300 mr-2"
+          >
+            Print
+          </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="text-red-400 hover:text-red-300"
+          >
+            Delete
+          </motion.button>
+        </div>
+      </li>
+      {/* Add more cloud storage items as needed */}
     </ul>
   </div>
 )
@@ -392,6 +518,7 @@ const SettingsSection = () => (
           className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
         >
           <option>A4</option>
+          <option>A3</option>
           <option>Letter</option>
           <option>Legal</option>
         </select>

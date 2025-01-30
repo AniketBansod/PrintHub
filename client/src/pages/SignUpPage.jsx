@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Eye, EyeOff } from "lucide-react"
 
 const SignUp = () => {
@@ -9,11 +9,28 @@ const SignUp = () => {
   const [password, setPassword] = useState("")
   const [role, setRole] = useState("student")
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState("")
+  const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Handle sign up logic here
-    console.log("Sign up submitted", { name, email, password, role })
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password, role }),
+      })
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message)
+
+      // Redirect to login page after successful registration
+      navigate("/login")
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   return (
@@ -29,6 +46,7 @@ const SignUp = () => {
           <h2 className="text-3xl font-bold text-amber-400">Join Us Today</h2>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {error && <p className="text-red-500">{error}</p>}
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-300">
               Name
@@ -88,7 +106,7 @@ const SignUp = () => {
               className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
             >
               <option value="student">Student</option>
-              <option value="admin">admin</option>
+              <option value="admin">Admin</option>
             </select>
           </div>
           <div>

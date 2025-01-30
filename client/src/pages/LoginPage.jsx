@@ -1,17 +1,42 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Eye, EyeOff } from "lucide-react"
 
 const Login = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState("")
+  const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Handle login logic here
-    console.log("Login submitted", { email, password })
+    try {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      })
+
+      const data = await response.json()
+      if (!response.ok) throw new Error(data.message)
+
+      // Store token and user info in local storage or context
+      localStorage.setItem("token", data.token)
+      localStorage.setItem("user", JSON.stringify(data.user))
+
+      // Redirect based on role
+      if (data.user.role === "admin") {
+        navigate("/admin/dashboard")
+      } else {
+        navigate("/student/dashboard")
+      }
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   return (
@@ -31,6 +56,7 @@ const Login = () => {
           <h2 className="text-3xl font-bold text-amber-400">Welcome Back</h2>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
+          {error && <p className="text-red-500">{error}</p>}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-300">
               Email
