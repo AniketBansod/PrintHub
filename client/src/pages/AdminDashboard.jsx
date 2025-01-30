@@ -1,17 +1,69 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Printer, Users, CreditCard, Settings, BarChart, LogOut } from "lucide-react"
-
+import { Users, Settings, BarChart, LogOut, ToggleLeft, ToggleRight } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview")
+  const [serviceStatus, setServiceStatus] = useState(true)
+  const [reason, setReason] = useState("")
+  const [priceSettings, setPriceSettings] = useState({ blackWhite: 1.0, color: 2.0 })
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const fetchPricing = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/pricing")
+        const data = await response.json()
+        if (response.ok) {
+          setPriceSettings(data)
+        } else {
+          console.error(data.message)
+        }
+      } catch (error) {
+        console.error("Failed to fetch pricing settings:", error)
+      }
+    }
+
+    fetchPricing()
+  }, [])
+
+  const handlePriceChange = (e) => {
+    const { id, value } = e.target
+    setPriceSettings((prev) => ({
+      ...prev,
+      [id]: parseFloat(value),
+    }))
+  }
+
+  const savePricing = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/pricing", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(priceSettings),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        console.error(data.message)
+      }
+    } catch (error) {
+      console.error("Failed to update pricing settings:", error)
+    }
+  }
 
   const menuItems = [
     { id: "overview", icon: BarChart, label: "Overview" },
-    { id: "printers", icon: Printer, label: "Manage Printers" },
     { id: "users", icon: Users, label: "User Management" },
-    { id: "billing", icon: CreditCard, label: "Billing" },
     { id: "settings", icon: Settings, label: "System Settings" },
+    { id: "serviceStatus", icon: serviceStatus ? ToggleRight : ToggleLeft, label: "Service Status" },
   ]
+
+  const handleServiceToggle = () => {
+    setServiceStatus(!serviceStatus)
+  }
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex">
@@ -55,10 +107,22 @@ const AdminDashboard = () => {
       <main className="flex-1 p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
         {activeTab === "overview" && <OverviewSection />}
-        {activeTab === "printers" && <PrintersSection />}
-        {activeTab === "users" && <UsersSection />}
-        {activeTab === "billing" && <BillingSection />}
-        {activeTab === "settings" && <SettingsSection />}
+        {activeTab === "users" && <UsersSection navigate={navigate} />}
+        {activeTab === "settings" && (
+          <SettingsSection
+            priceSettings={priceSettings}
+            handlePriceChange={handlePriceChange}
+            savePricing={savePricing}
+          />
+        )}
+        {activeTab === "serviceStatus" && (
+          <ServiceStatusSection
+            serviceStatus={serviceStatus}
+            reason={reason}
+            setReason={setReason}
+            handleServiceToggle={handleServiceToggle}
+          />
+        )}
       </main>
     </div>
   )
@@ -131,188 +195,110 @@ const UrgentRequestsCard = () => (
   </div>
 )
 
-const PrintersSection = () => (
+const ServiceStatusSection = ({ serviceStatus, reason, setReason, handleServiceToggle }) => (
   <div>
-    <h2 className="text-2xl font-semibold mb-4">Manage Printers</h2>
-    <table className="w-full text-left border-collapse">
-      <thead>
-        <tr className="bg-gray-800">
-          <th className="p-2 border border-gray-700">Printer Name</th>
-          <th className="p-2 border border-gray-700">Location</th>
-          <th className="p-2 border border-gray-700">Status</th>
-          <th className="p-2 border border-gray-700">Queue</th>
-          <th className="p-2 border border-gray-700">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td className="p-2 border border-gray-700">Library Printer</td>
-          <td className="p-2 border border-gray-700">Main Library</td>
-          <td className="p-2 border border-gray-700">Active</td>
-          <td className="p-2 border border-gray-700">5 jobs</td>
-          <td className="p-2 border border-gray-700">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="text-amber-400 hover:text-amber-300 mr-2"
-            >
-              Edit
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="text-red-400 hover:text-red-300"
-            >
-              Disable
-            </motion.button>
-          </td>
-        </tr>
-        {/* Add more printer rows as needed */}
-      </tbody>
-    </table>
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="mt-4 bg-amber-500 text-gray-900 py-2 px-4 rounded-md hover:bg-amber-400 transition duration-300 ease-in-out shadow-lg font-semibold"
-    >
-      Add New Printer
-    </motion.button>
+    <h2 className="text-2xl font-semibold mb-4">Service Status</h2>
+    <div className="flex items-center mb-4">
+      <motion.button
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={handleServiceToggle}
+        className={`flex items-center p-2 rounded-md ${
+          serviceStatus ? "bg-green-500" : "bg-red-500"
+        } text-gray-900`}
+      >
+        {serviceStatus ? <ToggleRight className="mr-2 h-5 w-5" /> : <ToggleLeft className="mr-2 h-5 w-5" />}
+        {serviceStatus ? "Service ON" : "Service OFF"}
+      </motion.button>
+    </div>
+    {!serviceStatus && (
+      <div>
+        <label htmlFor="reason" className="block text-sm font-medium text-gray-300 mb-2">
+          Select Reason
+        </label>
+        <select
+          id="reason"
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+        >
+          <option value="">Select a reason</option>
+          <option value="No Electricity">No Electricity</option>
+          <option value="Lunch Break">Lunch Break</option>
+          <option value="Personal Reason">Personal Reason</option>
+        </select>
+      </div>
+    )}
   </div>
 )
 
-const UsersSection = () => (
+const UsersSection = ({ navigate }) => (
   <div>
     <h2 className="text-2xl font-semibold mb-4">User Management</h2>
     <table className="w-full text-left border-collapse">
       <thead>
         <tr className="bg-gray-800">
           <th className="p-2 border border-gray-700">Name</th>
-          <th className="p-2 border border-gray-700">Email</th>
-          <th className="p-2 border border-gray-700">Role</th>
-          <th className="p-2 border border-gray-700">Print Credits</th>
-          <th className="p-2 border border-gray-700">Actions</th>
+          <th className="p-2 border border-gray-700">Student ID</th>
+          <th className="p-2 border border-gray-700">Orders</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td className="p-2 border border-gray-700">John Doe</td>
-          <td className="p-2 border border-gray-700">john@example.com</td>
-          <td className="p-2 border border-gray-700">Student</td>
-          <td className="p-2 border border-gray-700">500</td>
+          <td className="p-2 border border-gray-700">12345678</td>
           <td className="p-2 border border-gray-700">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="text-amber-400 hover:text-amber-300 mr-2"
+              onClick={() => navigate("/admin/orders/john-doe")}
+              className="text-amber-400 hover:text-amber-300"
             >
-              Edit
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="text-red-400 hover:text-red-300"
-            >
-              Deactivate
+              View Order
             </motion.button>
           </td>
         </tr>
         {/* Add more user rows as needed */}
       </tbody>
     </table>
-    <motion.button
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="mt-4 bg-amber-500 text-gray-900 py-2 px-4 rounded-md hover:bg-amber-400 transition duration-300 ease-in-out shadow-lg font-semibold"
-    >
-      Add New User
-    </motion.button>
   </div>
 )
 
-const BillingSection = () => (
-  <div>
-    <h2 className="text-2xl font-semibold mb-4">Billing Overview</h2>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <StatCard title="Total Revenue" value="12,345 credits" />
-      <StatCard title="Pending Payments" value="678 credits" />
-    </div>
-    <h3 className="text-xl font-semibold mb-2">Recent Transactions</h3>
-    <table className="w-full text-left border-collapse">
-      <thead>
-        <tr className="bg-gray-800">
-          <th className="p-2 border border-gray-700">Date</th>
-          <th className="p-2 border border-gray-700">User</th>
-          <th className="p-2 border border-gray-700">Amount</th>
-          <th className="p-2 border border-gray-700">Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td className="p-2 border border-gray-700">2025-01-30</td>
-          <td className="p-2 border border-gray-700">Jane Smith</td>
-          <td className="p-2 border border-gray-700">50 credits</td>
-          <td className="p-2 border border-gray-700">Completed</td>
-        </tr>
-        {/* Add more transaction rows as needed */}
-      </tbody>
-    </table>
-  </div>
-)
-
-const SettingsSection = () => (
+const SettingsSection = ({ priceSettings, handlePriceChange, savePricing }) => (
   <div>
     <h2 className="text-2xl font-semibold mb-4">System Settings</h2>
     <form className="space-y-4">
       <div>
-        <label htmlFor="price-per-page" className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor="blackWhite" className="block text-sm font-medium text-gray-300 mb-2">
           Price Per Page (Black & White)
         </label>
         <input
           type="number"
-          id="price-per-page"
+          id="blackWhite"
           step="0.1"
-          defaultValue="1.0"
+          value={priceSettings.blackWhite}
+          onChange={handlePriceChange}
           className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
         />
       </div>
       <div>
-        <label htmlFor="price-per-page-color" className="block text-sm font-medium text-gray-300 mb-2">
+        <label htmlFor="color" className="block text-sm font-medium text-gray-300 mb-2">
           Price Per Page (Color)
         </label>
         <input
           type="number"
-          id="price-per-page-color"
+          id="color"
           step="0.1"
-          defaultValue="2.0"
-          className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
-        />
-      </div>
-      <div>
-        <label htmlFor="max-daily-prints" className="block text-sm font-medium text-gray-300 mb-2">
-          Max Daily Prints Per User
-        </label>
-        <input
-          type="number"
-          id="max-daily-prints"
-          defaultValue="100"
-          className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
-        />
-      </div>
-      <div>
-        <label htmlFor="monthly-free-credits" className="block text-sm font-medium text-gray-300 mb-2">
-          Monthly Free Credits Per Student
-        </label>
-        <input
-          type="number"
-          id="monthly-free-credits"
-          defaultValue="50"
+          value={priceSettings.color}
+          onChange={handlePriceChange}
           className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
         />
       </div>
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        type="submit"
+        type="button"
+        onClick={savePricing}
         className="w-full bg-amber-500 text-gray-900 py-2 px-4 rounded-md hover:bg-amber-400 transition duration-300 ease-in-out shadow-lg font-semibold"
       >
         Save Settings
