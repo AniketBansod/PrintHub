@@ -1,0 +1,128 @@
+{
+  "queries": [
+    {
+      "question": "How can I reset my password?",
+      "response": "To reset your password, go to the login page and click on 'Forgot Password'. Follow the instructions to reset your password."
+    },
+    {
+      "question": "What are the payment options available?",
+      "response": "We accept credit cards, debit cards, and PayPal. You can select your preferred payment method at checkout."
+    },
+    {
+      "question": "How do I track my order?",
+      "response": "You can track your order by logging into your account and visiting the 'Order History' section."
+    },
+    {
+      "question": "Can I cancel my order?",
+      "response": "Yes, you can cancel your order within 24 hours of placing it. Go to 'Order History' and select the order you wish to cancel."
+    },
+    {
+      "question": "What is the return policy?",
+      "response": "Our return policy allows you to return items within 30 days of receipt. Please ensure the items are in their original condition."
+    },
+    {
+      "question": "What are your operating hours?",
+      "response": "We are open from 9 AM to 5 PM, Monday to Friday."
+    },
+    {
+      "question": "How can I contact customer support?",
+      "response": "You can contact our customer support via email at support@example.com or call us at 1-800-555-0199."
+    },
+    {
+      "question": "Do you offer international shipping?",
+      "response": "Yes, we offer international shipping to select countries. Please check our shipping policy for more details."
+    },
+    {
+      "question": "How do I update my account information?",
+      "response": "To update your account information, log in to your account and go to the 'Settings' section."
+    },
+    {
+      "question": "What should I do if I receive a damaged item?",
+      "response": "If you receive a damaged item, please contact our customer support immediately with your order details and a photo of the damaged item."
+    },
+    {
+      "question": "What items are available in your store?",
+      "response": "We offer a variety of items including printing services, stationery, college files, and more. Please visit our store page for a complete list."
+    },
+    {
+      "question": "What is the price for color printing?",
+      "response": "Color printing costs 5 rupees per page. Discounts are available for bulk orders."
+    },
+    {
+      "question": "What is the price for black and white printing?",
+      "response": "Black and white printing costs 2 rupees per page. Discounts are available for bulk orders."
+    },
+    {
+      "question": "What stationery items do you offer?",
+      "response": "We offer a range of stationery items including pens, notebooks, binders, and more. Check our stationery section for details."
+    },
+    {
+      "question": "How much do college files cost?",
+      "response": "College files are priced at 20 rupees each. We offer various types and sizes to suit your needs."
+    },
+    {
+      "question": "What is this platform designed for?",
+      "response": "This platform automates and digitizes common campus services like printing requests and stationary purchases to reduce manual effort and improve user convenience."
+    },
+    {
+      "question": "Who can use this platform?",
+      "response": "Students, faculty, and service providers on campus can use this platform."
+    },
+    {
+      "question": "Is the platform accessible via both web and mobile?",
+      "response": "Yes, it is designed for both web and mobile accessibility."
+    },
+    {
+      "question": "What are the operating hours of the service?",
+      "response": "The platform operates 24/7, but specific services like printing and stationary pickup may have designated hours."
+    },
+    {
+      "question": "How do I upload a document for printing?",
+      "response": "Students can upload documents through the web or mobile app and queue their printing jobs."
+    },
+    {
+      "question": "How can I track the status of my printing request?",
+      "response": "The platform provides real-time tracking of printing requests in the user dashboard."
+    },
+    {
+      "question": "What types of files are supported for printing?",
+      "response": "Common formats like PDF, DOCX, PPT, and PNG are supported."
+    },
+    {
+      "question": "Can I specify print settings (color, grayscale, duplex, etc.)?",
+      "response": "Yes, users can customize print settings before submitting their request."
+    },
+    {
+      "question": "Where do I collect my printed documents?",
+      "response": "You will receive a notification specifying the pickup location."
+    },
+    {
+      "question": "Can I purchase stationary items through the platform?",
+      "response": "Yes, users can browse and order stationary items through the platform."
+    },
+    {
+      "question": "How do I know if a stationary item is in stock?",
+      "response": "The platform provides real-time inventory updates for stationary items."
+    },
+    {
+      "question": "Where do I collect my stationary order?",
+      "response": "Pickup details will be provided upon order confirmation."
+    },
+    {
+      "question": "Can I return or exchange a stationary item?",
+      "response": "Returns and exchanges depend on the specific policies of the stationary store."
+    },
+    {
+      "question": "Can I schedule a printing request for a later time?",
+      "response": "Yes, users can schedule printing jobs in advance."
+    },
+    {
+      "question": "How long does it take to process a print request?",
+      "response": "Processing times depend on the queue, but estimated times are shown on the dashboard."
+    },
+    {
+      "question": "Can I reserve stationary items in advance?",
+      "response": "Yes, users can reserve items and pick them up later."
+    }
+  ]
+} 

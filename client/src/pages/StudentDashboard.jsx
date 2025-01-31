@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
+import { useNavigate } from "react-router-dom"
 import { Printer, Clock, FileText, Settings, User, LogOut, Cloud, ShoppingCart, History } from "lucide-react"
 import { usePricing } from "../context/PricingContext.jsx"
 import SettingsSection from "../components/SettingsSection.jsx"
@@ -11,11 +12,13 @@ import UpcomingPrintsCard from "../components/UpcomingPrintsCard.jsx"
 import RecentActivityCard from "../components/RecentActivityCard.jsx"
 import PrintQuotaCard from "../components/PrintQuotaCard.jsx"
 import NewPrintSection from "../components/NewPrintSection.jsx"
+import Chatbot from '../components/Chatbot'
+
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard")
   const [user, setUser] = useState({ name: "", email: "" })
   const { priceSettings } = usePricing()
-
+  const navigate = useNavigate()
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -48,14 +51,20 @@ const StudentDashboard = () => {
     { id: "cloudStorage", icon: Cloud, label: "Cloud Storage" },
     { id: "settings", icon: Settings, label: "Settings" },
   ]
+  const handleLogout = () => {
+    // Clear auth token
+    localStorage.removeItem('token');
+    // Redirect to login
+    navigate('/login');
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-800 p-4">
+      <aside className="w-64 bg-gray-800 p-4 flex flex-col h-screen">
         <div className="mb-8">
           <img
-            src="/placeholder.svg?height=50&width=50"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaf6-sDpgArQz0rfE__xtbQIT09llY_Wp8nA&s"
             alt="Campus Printing Hub Logo"
             className="h-12 w-12 mx-auto mb-2"
           />
@@ -77,14 +86,18 @@ const StudentDashboard = () => {
             </motion.button>
           ))}
         </nav>
+      {/* Logout Section */}
+      <div className="mt-auto pt-4 border-t border-gray-700">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="w-full flex items-center p-2 rounded-md mt-8 text-gray-300 hover:bg-gray-700"
+          onClick={handleLogout}
+          className="w-full flex items-center p-2 rounded-md text-gray-300 hover:bg-gray-700"
         >
           <LogOut className="mr-2 h-5 w-5" />
           Logout
         </motion.button>
+      </div>
       </aside>
 
       {/* Main Content */}
@@ -97,6 +110,7 @@ const StudentDashboard = () => {
         {activeTab === "orderHistory" && <OrderHistorySection />}
         {activeTab === "cloudStorage" && <CloudStorageSection />}
         {activeTab === "settings" && <SettingsSection />}
+        <Chatbot />
       </main>
     </div>
   )

@@ -7,6 +7,7 @@ import StudentDashboard from "./pages/StudentDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
 import {PricingProvider } from "./context/PricingContext"
 
+
 const App = () => {
   return (
     <PricingProvider>
