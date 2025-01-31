@@ -9,6 +9,7 @@ import { PricingProvider } from "./context/PricingContext"
 import OrderDetails from "./components/OrderDetails"
 import { RazorpayProvider } from "./context/RazorpayContext"
 
+
 const App = () => {
   return (
     <PricingProvider>

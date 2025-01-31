@@ -72,13 +72,20 @@ const AdminDashboard = () => {
     setServiceStatus(!serviceStatus)
   }
 
+  const handleLogout = () => {
+    // Clear auth token
+    localStorage.removeItem('token');
+    // Redirect to login
+    navigate('/login');
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-800 p-4">
+      <aside className="w-64 bg-gray-800 p-4 flex flex-col h-screen">
         <div className="mb-8">
           <img
-            src="/placeholder.svg?height=50&width=50"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaf6-sDpgArQz0rfE__xtbQIT09llY_Wp8nA&s"
             alt="Campus Printing Hub Logo"
             className="h-12 w-12 mx-auto mb-2"
           />
@@ -100,14 +107,18 @@ const AdminDashboard = () => {
             </motion.button>
           ))}
         </nav>
+       {/* Logout Section */}
+      <div className="mt-auto pt-4 border-t border-gray-700">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          className="w-full flex items-center p-2 rounded-md mt-8 text-gray-300 hover:bg-gray-700"
+          onClick={handleLogout}
+          className="w-full flex items-center p-2 rounded-md text-gray-300 hover:bg-gray-700"
         >
           <LogOut className="mr-2 h-5 w-5" />
           Logout
         </motion.button>
+      </div>
       </aside>
 
       {/* Main Content */}

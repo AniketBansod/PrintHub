@@ -13,7 +13,7 @@ const generateOrderId = () => {
 };
 
 // Get all orders for the authenticated user
-router.get("/", authMiddleware, async (req, res) => {
+router.get("/",   authMiddleware ,async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.user.id })
       .sort({ orderDate: -1 }); // Sort by newest first
