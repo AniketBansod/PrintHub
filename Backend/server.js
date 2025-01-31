@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const PrintJob = require('./models/PrintJob');
 const cloudinary = require('cloudinary').v2;
+const adminRouter = require("./routes/admin");
 const ordersRouter = require('./routes/orders');
 
 const app = express();
@@ -34,17 +35,17 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 
-
-
-
 // Import Routes
 const authRoutes = require("./routes/auth");
 const pricingRoutes = require("./routes/pricing");
+const printJobsRouter = require("./routes/printJobs");
 app.use("/api/auth", authRoutes);
 app.use("/api/pricing", pricingRoutes);
 
 // Routes
 app.use('/api/orders', ordersRouter);
+app.use('/api/admin', adminRouter);
+app.use('/api/printJobs', printJobsRouter);
 
 // Endpoint to handle file uploads and store print options
 app.post('/api/print', upload.single('file'), async (req, res) => {
@@ -100,10 +101,10 @@ app.get('/api/cart', async (req, res) => {
 });
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
-  .catch((err) => console.error("❌ MongoDB Connection Error:", err));
+  .catch((err) => console.error(" MongoDB Connection Error:", err));
 
 // Start Server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

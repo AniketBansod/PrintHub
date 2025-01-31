@@ -5,7 +5,8 @@ import LoginPage from "./pages/LoginPage"
 import SignUpPage from "./pages/SignUpPage"
 import StudentDashboard from "./pages/StudentDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
-import {PricingProvider } from "./context/PricingContext"
+import { PricingProvider } from "./context/PricingContext"
+import OrderDetails from "./components/OrderDetails"
 
 
 const App = () => {
@@ -18,6 +19,7 @@ const App = () => {
           <Route path="/register" element={<SignUpPage />} />
           <Route path="/student/dashboard" element={<StudentDashboard />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/order/:orderId" element={<OrderDetails />} /> {/* Add this route */}
         </Routes>
       </Router>
     </PricingProvider>
@@ -25,4 +27,3 @@ const App = () => {
 }
 
 export default App
-

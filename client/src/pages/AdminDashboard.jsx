@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { Users, Settings, BarChart, LogOut, ToggleLeft, ToggleRight } from "lucide-react"
+import { Users, Settings, BarChart, LogOut, ToggleLeft, ToggleRight, FileText } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import OverviewSection from "../components/OverviewSection"
 import UsersSection from "../components/UsersSection"
+import OrderDetails from "../components/OrderDetails"
 import SystemSettingsSection from "../components/SystemSettingsSection"
 import ServiceStatusSection from "../components/ServiceStatusSection"
 
@@ -64,6 +65,7 @@ const AdminDashboard = () => {
     { id: "users", icon: Users, label: "User Management" },
     { id: "settings", icon: Settings, label: "System Settings" },
     { id: "serviceStatus", icon: serviceStatus ? ToggleRight : ToggleLeft, label: "Service Status" },
+    {id: "orderDetails", icon: FileText, label: "Order Details"}
   ]
 
   const handleServiceToggle = () => {
@@ -139,6 +141,7 @@ const AdminDashboard = () => {
             handleServiceToggle={handleServiceToggle}
           />
         )}
+        {activeTab === "orderDetails" && <OrderDetails />}
       </main>
     </div>
   )
