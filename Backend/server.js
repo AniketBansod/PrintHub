@@ -7,7 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 const PrintJob = require('./models/PrintJob');
 const cloudinary = require('cloudinary').v2;
-const orderRoutes = require('./routes/order');
+const ordersRouter = require('./routes/orders');
 
 const app = express();
 
@@ -42,8 +42,9 @@ const authRoutes = require("./routes/auth");
 const pricingRoutes = require("./routes/pricing");
 app.use("/api/auth", authRoutes);
 app.use("/api/pricing", pricingRoutes);
-app.use('/api/orders', orderRoutes);
 
+// Routes
+app.use('/api/orders', ordersRouter);
 
 // Endpoint to handle file uploads and store print options
 app.post('/api/print', upload.single('file'), async (req, res) => {

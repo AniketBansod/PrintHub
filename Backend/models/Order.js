@@ -1,18 +1,38 @@
 const mongoose = require('mongoose');
 
 const OrderSchema = new mongoose.Schema({
-  orderId: { type: String, required: true, unique: true },
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  items: [{ type: String, required: true }],
-  total: { type: Number, required: true },
-  status: { type: String, default: 'Completed' },
-  billingInfo: {
-    name: { type: String, required: true },
-    email: { type: String, required: true },
-    address: { type: String, required: true },
+  orderId: {
+    type: String,
+    unique: true,
+    required: true
   },
-  receiptUrl: { type: String, required: true },
-  date: { type: Date, default: Date.now },
+  userId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'User', 
+    required: true 
+  },
+  items: [{
+    file: { type: String, required: true },
+    copies: { type: Number, required: true },
+    size: { type: String, required: true },
+    color: { type: String, required: true },
+    sides: { type: String, required: true },
+    pages: { type: String, required: true },
+    estimatedPrice: { type: Number, required: true }
+  }],
+  totalAmount: { 
+    type: Number, 
+    required: true 
+  },
+  status: { 
+    type: String, 
+    default: 'pending',
+    enum: ['pending', 'processing', 'completed', 'cancelled']
+  },
+  orderDate: { 
+    type: Date, 
+    default: Date.now 
+  }
 });
 
 module.exports = mongoose.model('Order', OrderSchema); 
