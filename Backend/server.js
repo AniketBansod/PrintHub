@@ -38,12 +38,14 @@ const upload = multer({ storage });
 // Import Routes
 const authRoutes = require("./routes/auth");
 const pricingRoutes = require("./routes/pricing");
+const printJobsRouter = require("./routes/printJobs");
 app.use("/api/auth", authRoutes);
 app.use("/api/pricing", pricingRoutes);
 
 // Routes
 app.use('/api/orders', ordersRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/printJobs', printJobsRouter);
 
 // Endpoint to handle file uploads and store print options
 app.post('/api/print', upload.single('file'), async (req, res) => {

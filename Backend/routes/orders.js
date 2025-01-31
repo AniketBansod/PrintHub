@@ -93,6 +93,19 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
+// Endpoint to fetch order details by orderId
+router.get('/:orderId', async (req, res) => {
+  try {
+    const order = await Order.findOne({ orderId: req.params.orderId }).populate('userId', 'name email');
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // ... rest of the routes ...
 
-module.exports = router; 
+module.exports = router;
