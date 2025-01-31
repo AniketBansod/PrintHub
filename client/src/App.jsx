@@ -7,20 +7,23 @@ import StudentDashboard from "./pages/StudentDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
 import { PricingProvider } from "./context/PricingContext"
 import OrderDetails from "./components/OrderDetails"
+import { RazorpayProvider } from "./context/RazorpayContext"
 
 const App = () => {
   return (
     <PricingProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<SignUpPage />} />
-          <Route path="/student/dashboard" element={<StudentDashboard />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/order/:orderId" element={<OrderDetails />} /> {/* Add this route */}
-        </Routes>
-      </Router>
+      <RazorpayProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<SignUpPage />} />
+            <Route path="/student/dashboard" element={<StudentDashboard />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/order/:orderId" element={<OrderDetails />} /> {/* Add this route */}
+          </Routes>
+        </Router>
+      </RazorpayProvider>
     </PricingProvider>
   )
 }

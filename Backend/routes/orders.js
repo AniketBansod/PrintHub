@@ -164,6 +164,34 @@ router.get('/:orderId/download/:filename', async (req, res) => {
   }
 });
 
+// Add this new endpoint
+router.put('/:orderId/payment', authMiddleware, async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { paymentId } = req.body;
+
+    const order = await Order.findOneAndUpdate(
+      { orderId },
+      { 
+        status: 'completed',
+        paymentId
+      },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({ 
+      message: 'Error updating payment status', 
+      error: error.message 
+    });
+  }
+});
+
 // ... rest of the routes ...
 
 module.exports = router;

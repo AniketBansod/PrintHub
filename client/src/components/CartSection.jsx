@@ -1,16 +1,28 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useContext } from "react"
 import { motion } from "framer-motion"
 import { useSelector, useDispatch } from 'react-redux';
 import { removeFromCart, clearCart } from '../slices/printJobSlice';
 import { useNavigate } from 'react-router-dom';
+import { RazorpayContext } from '../context/RazorpayContext';
 
 const CartSection = () => {
+  
+    const { loadRazorpayScript } = useContext(RazorpayContext);
   
     const handlePayment = async () => {
       try {
         setIsProcessing(true);
         setError("");
 
+        // Load Razorpay script
+        const res = await loadRazorpayScript();
+        if (!res) {
+          setError('Razorpay SDK failed to load. Are you online?');
+          setIsProcessing(false);
+          return;
+        }
+
+        // Create order in your backend
         const response = await fetch("http://localhost:5000/api/orders", {
           method: "POST",
           headers: {
@@ -19,25 +31,55 @@ const CartSection = () => {
           },
           body: JSON.stringify({
             items: cartRedux,
-            totalAmount: totalCost * 1.18
+            totalAmount: totalCost * 1.18 // Including GST
           })
         });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Failed to create order");
-        }
-
-        // Clear cart after successful order
-        dispatch(clearCart());
-
-        // Show success message
-        alert("Order placed successfully! Check your order history for details.");
+        const orderData = await response.json();
         
+        // Initialize Razorpay payment
+        const options = {
+          key: 'rzp_test_1DP5mmOlF5G5ag',
+          amount: (totalCost * 1.18 * 100).toFixed(0), // Convert to paise
+          currency: 'INR',
+          name: 'PrintEase',
+          description: 'Print Job Payment',
+          order_id: orderData.orderId,
+          handler: async function (response) {
+            // Payment successful
+            try {
+              // Update order status
+              await fetch(`http://localhost:5000/api/orders/${orderData.orderId}/payment`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                  paymentId: response.razorpay_payment_id
+                })
+              });
+
+              // Clear cart after successful payment
+              dispatch(clearCart());
+              navigate('/student/dashboard');
+            } catch (error) {
+              setError('Error updating payment status');
+            }
+          },
+          prefill: {
+            name: 'Student',
+            email: 'student@example.com'
+          },
+          theme: {
+            color: '#F59E0B'
+          }
+        };
+
+        const paymentObject = new window.Razorpay(options);
+        paymentObject.open();
       } catch (error) {
-        setError(error.message);
-        console.error("Payment error:", error);
+        setError(error.message || 'Error processing payment');
       } finally {
         setIsProcessing(false);
       }
