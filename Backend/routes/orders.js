@@ -2,6 +2,8 @@ const express = require("express");
 const Order = require("../models/Order");
 const authMiddleware = require("../middleware/auth");
 const router = express.Router();
+const path = require('path');
+const fs = require('fs');
 
 // Function to generate unique order ID
 const generateOrderId = () => {
@@ -103,6 +105,62 @@ router.get('/:orderId', async (req, res) => {
     res.json(order);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// Add this new endpoint for file download
+router.get('/:orderId/download/:filename', async (req, res) => {
+  try {
+    const { orderId, filename } = req.params;
+    console.log('Download request for:', { orderId, filename });
+    
+    // Find the order
+    const order = await Order.findOne({ orderId });
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Find the matching item in the order
+    const matchingItem = order.items.find(item => {
+      // Extract just the filename from the full path
+      const itemFileName = item.file.split('-').slice(1).join('-'); // Remove UUID prefix
+      return itemFileName === filename;
+    });
+
+    if (!matchingItem) {
+      return res.status(404).json({ message: 'File not found in order' });
+    }
+
+    // Get the full file path from the uploads directory
+    const uploadsDir = path.join(__dirname, '..', 'uploads');
+    // Find the actual file with UUID prefix
+    const files = fs.readdirSync(uploadsDir);
+    const actualFile = files.find(file => file.endsWith(filename));
+
+    if (!actualFile) {
+      return res.status(404).json({ message: 'File not found on server' });
+    }
+
+    const filePath = path.join(uploadsDir, actualFile);
+    
+    // Set headers for file download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+
+    // Stream the file
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.on('error', error => {
+      console.error('Error streaming file:', error);
+      res.status(500).json({ message: 'Error streaming file' });
+    });
+
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error('Error downloading file:', error);
+    res.status(500).json({ 
+      message: 'Error downloading file', 
+      error: error.message 
+    });
   }
 });
 
