@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom"
 import { Printer, Clock, FileText, Settings, User, LogOut, Cloud, ShoppingCart, History } from "lucide-react"
 import { usePricing } from "../context/PricingContext.jsx"
 import SettingsSection from "../components/SettingsSection.jsx"
-import CloudStorageSection from "../components/CloudStorageSection.jsx"
 import OrderHistorySection from "../components/OrderHistorySection.jsx"
 import CartSection from "../components/CartSection.jsx"
 import QuickStatsCard from "../components/QuickStatsCard.jsx"
@@ -48,7 +47,6 @@ const StudentDashboard = () => {
     { id: "newPrint", icon: Printer, label: "New Print" },
     { id: "cart", icon: ShoppingCart, label: "Cart" },
     { id: "orderHistory", icon: History, label: "Order History" },
-    { id: "cloudStorage", icon: Cloud, label: "Cloud Storage" },
     { id: "settings", icon: Settings, label: "Settings" },
   ]
   const handleLogout = () => {
@@ -108,7 +106,6 @@ const StudentDashboard = () => {
         {activeTab === "newPrint" && <NewPrintSection priceSettings={priceSettings} />}
         {activeTab === "cart" && <CartSection />}
         {activeTab === "orderHistory" && <OrderHistorySection />}
-        {activeTab === "cloudStorage" && <CloudStorageSection />}
         {activeTab === "settings" && <SettingsSection />}
         <Chatbot />
       </main>

@@ -31,32 +31,52 @@ const OrderDetails = () => {
     }
   }
 
-  const handleDownload = async (filename) => {
+  const handleDownload = async (fileUrl, originalFilename) => {
     try {
-      const originalFilename = filename.split("-").slice(1).join("-")
-
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/download/${originalFilename}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error("File not found on server")
+      // If it's a Cloudinary URL, download directly
+      if (fileUrl && fileUrl.includes('cloudinary.com')) {
+        const response = await fetch(fileUrl);
+        if (!response.ok) {
+          throw new Error("File not found on server");
+        }
+        
+        const blob = await response.blob();
+        
+        // Determine MIME type based on file extension
+        const getMimeType = (filename) => {
+          const extension = filename.split('.').pop().toLowerCase();
+          const mimeTypes = {
+            'pdf': 'application/pdf',
+            'doc': 'application/msword',
+            'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'txt': 'text/plain',
+            'jpg': 'image/jpeg',
+            'jpeg': 'image/jpeg',
+            'png': 'image/png',
+            'gif': 'image/gif'
+          };
+          return mimeTypes[extension] || 'application/octet-stream';
+        };
+        
+        // Create blob with correct MIME type
+        const mimeType = getMimeType(originalFilename);
+        const typedBlob = new Blob([blob], { type: mimeType });
+        
+        const url = window.URL.createObjectURL(typedBlob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = originalFilename; // Use the original filename directly
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+      } else {
+        // Fallback for other file types or if no URL
+        throw new Error("File URL not available");
       }
-
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = originalFilename
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
     } catch (error) {
-      console.error("Error downloading file:", error)
-      alert("Error downloading file: " + error.message)
+      console.error("Error downloading file:", error);
+      alert("Error downloading file: " + error.message);
     }
   }
 
@@ -122,7 +142,7 @@ const OrderDetails = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => handleDownload(item.file)}
+                onClick={() => handleDownload(item.fileUrl || item.file, item.file)}
                 className="flex items-center gap-2 bg-amber-500 text-gray-900 px-6 py-3 rounded-full hover:bg-amber-400 transition-colors"
               >
                 <Download size={18} />

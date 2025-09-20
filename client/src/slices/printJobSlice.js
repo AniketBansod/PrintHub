@@ -19,4 +19,4 @@ const printJobSlice = createSlice({
 });
 
 export const { addToCart, removeFromCart, clearCart } = printJobSlice.actions;
-export default printJobSlice.reducer; 
+export default printJobSlice.reducer;

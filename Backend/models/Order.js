@@ -26,8 +26,8 @@ const OrderSchema = new mongoose.Schema({
   },
   status: { 
     type: String, 
-    default: 'Completed',
-    enum: ['Completed', 'processing', 'pending', 'cancelled']
+    default: 'queue', // Changed default to 'queue'
+    enum: ['queue', 'done', 'cancelled'] // Updated enum values
   },
   orderDate: { 
     type: Date, 

@@ -2,38 +2,81 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
-const path = require('path');
 const PrintJob = require('./models/PrintJob');
 const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
+const { Readable } = require('stream');
 const adminRouter = require("./routes/admin");
 const ordersRouter = require('./routes/orders');
 
 const app = express();
 
 // Middleware
-app.use(express.json()); // Parse JSON bodies
-app.use(express.static('uploads'));
-app.use(cors()); // Enable CORS
+app.use(express.json());
+app.use(cors());
 
+// --- Cloudinary Configuration ---
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+// --- Multer Configuration for Memory Storage ---
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
   },
-  filename: (req, file, cb) => {
-    cb(null, `${uuidv4()}-${file.originalname}`);
-  },
+  fileFilter: (req, file, cb) => {
+    // Allow common document formats
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain',
+      'image/jpeg',
+      'image/png',
+      'image/gif'
+    ];
+    
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only PDF, DOC, DOCX, TXT, and image files are allowed.'), false);
+    }
+  }
 });
 
-const upload = multer({ storage });
-
+// --- Helper function to upload to Cloudinary ---
+const uploadToCloudinary = (file) => {
+  return new Promise((resolve, reject) => {
+    const filename = file.originalname.split('.').slice(0, -1).join('.');
+    const publicId = filename + '-' + uuidv4();
+    
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'print_jobs',
+        resource_type: 'raw',
+        public_id: publicId,
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
+      }
+    );
+    
+    const readable = new Readable();
+    readable.push(file.buffer);
+    readable.push(null);
+    readable.pipe(uploadStream);
+  });
+};
 
 // Import Routes
 const authRoutes = require("./routes/auth");
@@ -57,11 +100,8 @@ app.post('/api/print', upload.single('file'), async (req, res) => {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    // Upload to cloudinary
-    const result = await cloudinary.uploader.upload(file.path, {
-      folder: 'prints',
-      resource_type: 'auto'
-    });
+    // Upload file to Cloudinary
+    const cloudinaryResult = await uploadToCloudinary(file);
 
     // Generate a unique printId
     const printId = uuidv4();
@@ -69,28 +109,31 @@ app.post('/api/print', upload.single('file'), async (req, res) => {
     // Create new print job with all required fields
     const printJob = new PrintJob({
       printId,
-      file: result.secure_url,
+      file: cloudinaryResult.secure_url, // Cloudinary URL
+      originalFilename: file.originalname, // Store original filename
       copies: copies || 1,
       size: size || 'A4',
       color: color || 'Black & White',
       sides: sides || 'Single-sided',
       pages: pages || '1',
-      schedule: schedule || 'Not specified', // Provide default value
+      schedule: schedule || 'Not specified',
       estimatedPrice: estimatedPrice || 0
+      // Note: orderId will be set later when order is placed
     });
 
     await printJob.save();
 
-    res.status(201).json({ 
-      message: 'Print job created successfully', 
+    res.status(201).json({
+      message: 'Print job created successfully',
       printId,
-      file: result.secure_url 
+      file: cloudinaryResult.secure_url
     });
   } catch (error) {
     console.error('Error creating print job:', error);
     res.status(500).json({ message: 'Error creating print job', error: error.message });
   }
 });
+
 app.get('/api/cart', async (req, res) => {
   try {
     const printJobs = await PrintJob.find();
@@ -99,6 +142,7 @@ app.get('/api/cart', async (req, res) => {
     res.status(500).json({ message: 'Error fetching cart items', error: error.message });
   }
 });
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)

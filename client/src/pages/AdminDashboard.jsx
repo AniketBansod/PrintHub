@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom"
 import OverviewSection from "../components/OverviewSection"
 import UsersSection from "../components/UsersSection"
 import OrderDetails from "../components/OrderDetails"
+import AdminOrderDetails from "../components/AdminOrderDetails"
+import AdminOrderManagement from "../components/AdminOrderManagement"
 import SystemSettingsSection from "../components/SystemSettingsSection"
 import ServiceStatusSection from "../components/ServiceStatusSection"
 
@@ -141,7 +143,7 @@ const AdminDashboard = () => {
             handleServiceToggle={handleServiceToggle}
           />
         )}
-        {activeTab === "orderDetails" && <OrderDetails />}
+        {activeTab === "orderDetails" && <AdminOrderManagement />}
       </main>
     </div>
   )

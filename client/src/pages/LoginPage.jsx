@@ -1,17 +1,17 @@
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Link, useNavigate } from "react-router-dom"
-import { Eye, EyeOff } from "lucide-react"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("")
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
@@ -19,25 +19,25 @@ const Login = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-      })
+      });
 
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.message)
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
 
       // Store token and user info in local storage or context
-      localStorage.setItem("token", data.token)
-      localStorage.setItem("user", JSON.stringify(data.user))
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
 
       // Redirect based on role
       if (data.user.role === "admin") {
-        navigate("/admin/dashboard")
+        navigate("/admin/dashboard");
       } else {
-        navigate("/student/dashboard")
+        navigate("/student/dashboard");
       }
     } catch (err) {
-      setError(err.message)
+      setError(err.message);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 flex justify-center items-center p-4">
@@ -58,7 +58,10 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && <p className="text-red-500">{error}</p>}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-300"
+            >
               Email
             </label>
             <input
@@ -66,12 +69,15 @@ const Login = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+              className="mt-1 block w-full rounded-md bg-gray-700 border border-gray-600 text-gray-100 px-3 py-1.5 text-sm shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-40 transition-all duration-200"
               required
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-300"
+            >
               Password
             </label>
             <div className="mt-1 relative">
@@ -80,7 +86,7 @@ const Login = () => {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 pr-10 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+                className="block w-full rounded-md bg-gray-700 border border-gray-600 text-gray-100 pr-10 px-3 py-1.5 text-sm shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-40 transition-all duration-200"
                 required
               />
               <button
@@ -88,7 +94,11 @@ const Login = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-300"
               >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
               </button>
             </div>
           </div>
@@ -110,8 +120,7 @@ const Login = () => {
         </div>
       </motion.div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
-
+export default Login;

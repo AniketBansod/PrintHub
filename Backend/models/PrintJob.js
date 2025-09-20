@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const PrintJobSchema = new mongoose.Schema({
   printId: { type: String, required: true, unique: true },
-  file: { type: String, required: true },
+  file: { type: String, required: true }, // Cloudinary URL
+  originalFilename: { type: String, required: true }, // Original filename with extension
   copies: { type: Number, required: true },
   size: { type: String, required: true },
   color: { type: String, required: true },

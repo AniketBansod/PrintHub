@@ -8,50 +8,60 @@ const UsersSection = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [status, setStatus] = useState({});
 
   useEffect(() => {
-    const fetchOrders = async () => {
+    const fetchQueueOrders = async () => {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
           throw new Error('Please login to view orders');
         }
 
-        const response = await axios.get('http://localhost:5000/api/admin/orders', {
+        const response = await axios.get('http://localhost:5000/api/admin/orders/status/queue', {
           headers: {
             'Authorization': `Bearer ${token}`
           }
         });
 
         if (response.status !== 200) {
-          throw new Error(response.data.message || 'Failed to fetch orders');
+          throw new Error(response.data.message || 'Failed to fetch queue orders');
         }
 
-        const ordersData = response.data;
-        const initialStatus = {};
-        ordersData.forEach(order => {
-          initialStatus[order.orderId] = 'Queue';
-        });
-
-        setOrders(ordersData);
-        setStatus(initialStatus);
+        setOrders(response.data);
       } catch (err) {
-        console.error('Error fetching orders:', err);
+        console.error('Error fetching queue orders:', err);
         setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchOrders();
+    fetchQueueOrders();
   }, []);
 
-  const handleStatusChange = (orderId) => {
-    setStatus((prevStatus) => ({
-      ...prevStatus,
-      [orderId]: prevStatus[orderId] === 'Queue' ? 'Done' : 'Queue',
-    }));
+  const handleStatusChange = async (orderId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.put(
+        `http://localhost:5000/api/admin/orders/${orderId}/status`,
+        { status: 'done' },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      if (response.status === 200) {
+        // Remove the order from the queue list
+        setOrders(prevOrders => prevOrders.filter(order => order.orderId !== orderId));
+        alert('Order status updated to Done!');
+      }
+    } catch (err) {
+      console.error('Error updating order status:', err);
+      alert('Failed to update order status: ' + err.message);
+    }
   };
 
   if (loading) {
@@ -72,45 +82,70 @@ const UsersSection = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-4">User Management</h2>
-      <table className="w-full text-left border-collapse">
-        <thead>
-          <tr className="bg-gray-800">
-            <th className="p-2 border border-gray-700">Student ID</th>
-            <th className="p-2 border border-gray-700">Order ID</th>
-            <th className="p-2 border border-gray-700">Total Amount</th>
-            <th className="p-2 border border-gray-700">Status</th>
-            <th className="p-2 border border-gray-700">View Doc</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((order) => (
-            <tr key={order.orderId}>
-              <td className="p-2 border border-gray-700">{order.userId}</td>
-              <td className="p-2 border border-gray-700">{order.orderId}</td>
-              <td className="p-2 border border-gray-700">₹{order.totalAmount.toFixed(2)}</td>
-              <td className="p-2 border border-gray-700">
-                <button
-                  className={`px-3 py-1 rounded-full text-sm ${
-                    status[order.orderId] === 'Done' ? 'bg-green-500' : 'bg-blue-500'
-                  } text-white`}
-                  onClick={() => handleStatusChange(order.orderId)}
+      <h2 className="text-2xl font-semibold mb-4">User Management - Print Queue</h2>
+      <p className="text-gray-400 mb-4">Orders waiting to be processed: {orders.length}</p>
+      
+      {orders.length === 0 ? (
+        <div className="text-center text-gray-500 bg-gray-800 p-8 rounded-lg">
+          <p className="text-lg">No orders in queue</p>
+          <p className="text-sm">All orders have been processed!</p>
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-gray-800">
+                <th className="p-3 border border-gray-700">Student Name</th>
+                <th className="p-3 border border-gray-700">Order ID</th>
+                <th className="p-3 border border-gray-700">Total Amount</th>
+                <th className="p-3 border border-gray-700">Status</th>
+                <th className="p-3 border border-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <motion.tr 
+                  key={order.orderId}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="hover:bg-gray-750 transition-colors"
                 >
-                  {status[order.orderId]}
-                </button>
-              </td>
-              <td className="p-2 border border-gray-700">
-                <button
-                  className="text-blue-500 underline"
-                  onClick={() => navigate(`/order/${order.orderId}`)}
-                >
-                  View Doc
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                  <td className="p-3 border border-gray-700">
+                    {order.userId?.name || 'Unknown User'}
+                  </td>
+                  <td className="p-3 border border-gray-700">{order.orderId}</td>
+                  <td className="p-3 border border-gray-700">₹{order.totalAmount.toFixed(2)}</td>
+                  <td className="p-3 border border-gray-700">
+                    <span className="px-3 py-1 rounded-full text-sm bg-blue-500 text-white">
+                      Queue
+                    </span>
+                  </td>
+                  <td className="p-3 border border-gray-700">
+                    <div className="flex gap-2">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleStatusChange(order.orderId)}
+                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
+                      >
+                        Mark as Done
+                      </motion.button>
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => navigate(`/admin/orders/${order.orderId}`)}
+                        className="px-4 py-2 bg-amber-500 text-gray-900 rounded-lg hover:bg-amber-400 transition-colors text-sm"
+                      >
+                        View Details
+                      </motion.button>
+                    </div>
+                  </td>
+                </motion.tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

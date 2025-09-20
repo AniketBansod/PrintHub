@@ -7,6 +7,7 @@ import StudentDashboard from "./pages/StudentDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
 import { PricingProvider } from "./context/PricingContext"
 import OrderDetails from "./components/OrderDetails"
+import AdminOrderDetails from "./components/AdminOrderDetails"
 import { RazorpayProvider } from "./context/RazorpayContext"
 
 
@@ -21,7 +22,8 @@ const App = () => {
             <Route path="/register" element={<SignUpPage />} />
             <Route path="/student/dashboard" element={<StudentDashboard />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/order/:orderId" element={<OrderDetails />} /> {/* Add this route */}
+            <Route path="/order/:orderId" element={<OrderDetails />} />
+            <Route path="/admin/orders/:orderId" element={<AdminOrderDetails />} />
           </Routes>
         </Router>
       </RazorpayProvider>

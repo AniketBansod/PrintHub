@@ -1,19 +1,19 @@
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Link, useNavigate } from "react-router-dom"
-import { Eye, EyeOff } from "lucide-react"
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 const SignUp = () => {
-  const [name, setName] = useState("")
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [role, setRole] = useState("student")
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState("")
-  const navigate = useNavigate()
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("student");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     try {
       const response = await fetch("http://localhost:5000/api/auth/register", {
         method: "POST",
@@ -21,17 +21,17 @@ const SignUp = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ name, email, password, role }),
-      })
+      });
 
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.message)
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message);
 
       // Redirect to login page after successful registration
-      navigate("/login")
+      navigate("/login");
     } catch (err) {
-      setError(err.message)
+      setError(err.message);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 flex justify-center items-center p-4">
@@ -42,13 +42,20 @@ const SignUp = () => {
         className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md"
       >
         <div className="text-center mb-8">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaf6-sDpgArQz0rfE__xtbQIT09llY_Wp8nA&s" alt="Sign Up Icon" className="w-20 h-20 mx-auto mb-4" />
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaf6-sDpgArQz0rfE__xtbQIT09llY_Wp8nA&s"
+            alt="Sign Up Icon"
+            className="w-20 h-20 mx-auto mb-4"
+          />
           <h2 className="text-3xl font-bold text-amber-400">Join Us Today</h2>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && <p className="text-red-500">{error}</p>}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-300">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-300"
+            >
               Name
             </label>
             <input
@@ -56,12 +63,15 @@ const SignUp = () => {
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+              className="mt-1 block w-full rounded-md bg-gray-700 border border-gray-600 text-gray-100 px-3 py-1.5 text-sm shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-40 transition-all duration-200"
               required
             />
           </div>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-300"
+            >
               Email
             </label>
             <input
@@ -69,12 +79,15 @@ const SignUp = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+              className="mt-1 block w-full rounded-md bg-gray-700 border border-gray-600 text-gray-100 px-3 py-1.5 text-sm shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-40 transition-all duration-200"
               required
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-300"
+            >
               Password
             </label>
             <div className="mt-1 relative">
@@ -83,7 +96,7 @@ const SignUp = () => {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 pr-10 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+                className="block w-full rounded-md bg-gray-700 border border-gray-600 text-gray-100 pr-10 px-3 py-1.5 text-sm shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-40 transition-all duration-200"
                 required
               />
               <button
@@ -91,19 +104,26 @@ const SignUp = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-300"
               >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
               </button>
             </div>
           </div>
           <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-300">
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-gray-300"
+            >
               Role
             </label>
             <select
               id="role"
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 text-gray-100 focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-50"
+              className="mt-1 block w-full rounded-md bg-gray-700 border border-gray-600 text-gray-100 px-3 py-1.5 text-sm shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-40 transition-all duration-200"
             >
               <option value="student">Student</option>
               <option value="admin">Admin</option>
@@ -127,8 +147,7 @@ const SignUp = () => {
         </div>
       </motion.div>
     </div>
-  )
-}
+  );
+};
 
-export default SignUp
-
+export default SignUp;

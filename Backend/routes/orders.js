@@ -1,9 +1,11 @@
 const express = require("express");
 const Order = require("../models/Order");
+const PrintJob = require("../models/PrintJob");
 const authMiddleware = require("../middleware/auth");
+const { v4: uuidv4 } = require('uuid');
 const router = express.Router();
-const path = require('path');
-const fs = require('fs');
+
+// Note: Removed 'path' and 'fs' imports as they are no longer needed
 
 // Function to generate unique order ID
 const generateOrderId = () => {
@@ -13,7 +15,7 @@ const generateOrderId = () => {
 };
 
 // Get all orders for the authenticated user
-router.get("/",   authMiddleware ,async (req, res) => {
+router.get("/", authMiddleware, async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.user.id })
       .sort({ orderDate: -1 }); // Sort by newest first
@@ -58,6 +60,7 @@ router.post("/", authMiddleware, async (req, res) => {
       // Map paperSize to size and ensure all required fields exist
       return {
         file: item.file || '',
+        fileUrl: item.fileUrl || '', // Include the Cloudinary URL
         copies: Number(item.copies) || 0,
         size: item.paperSize || 'A4', // Map paperSize to size
         color: item.color || 'Black & White',
@@ -67,23 +70,63 @@ router.post("/", authMiddleware, async (req, res) => {
       };
     });
 
-    // Create new order
-    const order = new Order({
-      orderId,
+    // Create new order with queue status
+    const newOrder = new Order({
+      orderId: uuidv4(),
       userId: req.user.id,
       items: validatedItems,
-      totalAmount: totalAmount
+      totalAmount: totalAmount,
+      status: 'queue' // Set default status to queue
     });
 
-    console.log('Creating order:', order);
+    console.log('Creating order:', newOrder);
 
     // Save order to database
-    const savedOrder = await order.save();
+    const savedOrder = await newOrder.save();
     console.log('Order saved successfully:', savedOrder);
+
+    // Create PrintJob records for each item in the order
+    const printJobs = [];
+    for (const item of validatedItems) {
+      // Use the fileUrl if available, otherwise use the filename
+      const fileToStore = item.fileUrl || item.file;
+      
+      // Find existing PrintJob by Cloudinary URL or filename
+      let printJob = await PrintJob.findOne({ 
+        $or: [
+          { file: fileToStore },
+          { file: { $regex: item.file, $options: 'i' } }
+        ]
+      });
+      
+      if (!printJob) {
+        // Create a new PrintJob with the Cloudinary URL or filename
+        printJob = new PrintJob({
+          printId: uuidv4(),
+          file: fileToStore, // This will be the Cloudinary URL if available
+          originalFilename: item.originalFilename || item.file, // Store original filename
+          copies: item.copies,
+          size: item.size,
+          color: item.color,
+          sides: item.sides,
+          pages: item.pages,
+          schedule: 'Not specified',
+          estimatedPrice: item.estimatedPrice,
+          orderId: savedOrder._id
+        });
+        await printJob.save();
+      } else {
+        // Link existing PrintJob to this order
+        printJob.orderId = savedOrder._id;
+        await printJob.save();
+      }
+      printJobs.push(printJob);
+    }
     
     res.status(201).json({ 
       message: "Order placed successfully", 
-      order: savedOrder 
+      order: savedOrder,
+      printJobs: printJobs
     });
   } catch (error) {
     console.error('Order creation error:', error);
@@ -108,63 +151,10 @@ router.get('/:orderId', async (req, res) => {
   }
 });
 
-// Add this new endpoint for file download
-router.get('/:orderId/download/:filename', async (req, res) => {
-  try {
-    const { orderId, filename } = req.params;
-    console.log('Download request for:', { orderId, filename });
-    
-    // Find the order
-    const order = await Order.findOne({ orderId });
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
+// ✅ DELETED the old local file download endpoint.
+// The frontend will now handle downloads directly from the Cloudinary URL stored in the database.
 
-    // Find the matching item in the order
-    const matchingItem = order.items.find(item => {
-      // Extract just the filename from the full path
-      const itemFileName = item.file.split('-').slice(1).join('-'); // Remove UUID prefix
-      return itemFileName === filename;
-    });
-
-    if (!matchingItem) {
-      return res.status(404).json({ message: 'File not found in order' });
-    }
-
-    // Get the full file path from the uploads directory
-    const uploadsDir = path.join(__dirname, '..', 'uploads');
-    // Find the actual file with UUID prefix
-    const files = fs.readdirSync(uploadsDir);
-    const actualFile = files.find(file => file.endsWith(filename));
-
-    if (!actualFile) {
-      return res.status(404).json({ message: 'File not found on server' });
-    }
-
-    const filePath = path.join(uploadsDir, actualFile);
-    
-    // Set headers for file download
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-
-    // Stream the file
-    const fileStream = fs.createReadStream(filePath);
-    fileStream.on('error', error => {
-      console.error('Error streaming file:', error);
-      res.status(500).json({ message: 'Error streaming file' });
-    });
-
-    fileStream.pipe(res);
-  } catch (error) {
-    console.error('Error downloading file:', error);
-    res.status(500).json({ 
-      message: 'Error downloading file', 
-      error: error.message 
-    });
-  }
-});
-
-// Add this new endpoint
+// Endpoint to update payment status
 router.put('/:orderId/payment', authMiddleware, async (req, res) => {
   try {
     const { orderId } = req.params;
@@ -192,6 +182,54 @@ router.put('/:orderId/payment', authMiddleware, async (req, res) => {
   }
 });
 
-// ... rest of the routes ...
+// Endpoint to update order status
+router.put('/orders/:orderId/status', async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+    
+    // Validate status
+    if (!['queue', 'done', 'cancelled'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status. Must be queue, done, or cancelled' });
+    }
+    
+    const order = await Order.findOneAndUpdate(
+      { orderId },
+      { status },
+      { new: true }
+    );
+    
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    
+    res.json({ 
+      message: 'Order status updated successfully', 
+      order 
+    });
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ message: 'Error updating order status', error: error.message });
+  }
+});
+
+// Endpoint to fetch orders by status
+router.get('/orders/status/:status', async (req, res) => {
+  try {
+    const { status } = req.params;
+    
+    // Validate status
+    if (!['queue', 'done', 'cancelled'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status. Must be queue, done, or cancelled' });
+    }
+    
+    const orders = await Order.find({ status }).populate('userId', 'name email');
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching orders by status:', error);
+    res.status(500).json({ message: 'Error fetching orders by status', error: error.message });
+  }
+});
 
 module.exports = router;
+

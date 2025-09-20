@@ -15,9 +15,8 @@
   },
   "dependencies": {
     "concurrently": "^9.1.2",
-    "multer-storage-cloudinary": "^4.0.0"
+    "pdfjs-dist": "^5.4.149"
   },
-  "devDependencies": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -26,4 +25,3 @@
   },
   "homepage": "https://github.com/Tejaswini-41/Nirmaan_hackathon#readme"
 }
-
