@@ -12,6 +12,7 @@ import RecentActivityCard from "../components/RecentActivityCard.jsx"
 import PrintQuotaCard from "../components/PrintQuotaCard.jsx"
 import NewPrintSection from "../components/NewPrintSection.jsx"
 import Chatbot from '../components/Chatbot'
+import ServiceStatusBanner from '../components/ServiceStatusBanner'
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -100,6 +101,7 @@ const StudentDashboard = () => {
 
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-y-auto">
+        <ServiceStatusBanner />
         <h1 className="text-3xl font-bold mb-6">Welcome, {user.name}!</h1>
        
         {activeTab === "dashboard" && <DashboardOverview user={user} />}

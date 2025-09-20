@@ -143,6 +143,37 @@ app.get('/api/cart', async (req, res) => {
   }
 });
 
+// Public endpoint to check service status
+app.get('/api/service-status', async (req, res) => {
+  try {
+    const ServiceStatus = require('./models/ServiceStatus');
+    let serviceStatus = await ServiceStatus.findOne().sort({ updatedAt: -1 });
+    
+    // If no service status exists, assume shop is open (default)
+    if (!serviceStatus) {
+      return res.json({
+        isOpen: true,
+        reason: '',
+        updatedAt: new Date()
+      });
+    }
+    
+    res.json({
+      isOpen: serviceStatus.isOpen,
+      reason: serviceStatus.reason,
+      updatedAt: serviceStatus.updatedAt
+    });
+  } catch (error) {
+    console.error('Error fetching service status:', error);
+    // If there's an error, assume shop is open to avoid breaking the service
+    res.json({
+      isOpen: true,
+      reason: '',
+      updatedAt: new Date()
+    });
+  }
+});
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)

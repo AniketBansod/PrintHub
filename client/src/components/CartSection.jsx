@@ -4,9 +4,11 @@ import { useSelector, useDispatch } from "react-redux";
 import { removeFromCart, clearCart } from "../slices/printJobSlice";
 import { useNavigate } from "react-router-dom";
 import { RazorpayContext } from "../context/RazorpayContext";
+import useServiceStatus from "../hooks/useServiceStatus";
 
 const CartSection = () => {
   const { loadRazorpayScript } = useContext(RazorpayContext);
+  const { serviceStatus } = useServiceStatus();
 
   const handlePayment = async () => {
     try {
@@ -168,17 +170,19 @@ const CartSection = () => {
             </button>
             {error && <div className="text-red-500 mb-4">{error}</div>}
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: serviceStatus.isOpen ? 1.05 : 1 }}
+              whileTap={{ scale: serviceStatus.isOpen ? 0.95 : 1 }}
               onClick={handlePayment}
-              disabled={isProcessing}
+              disabled={isProcessing || !serviceStatus.isOpen}
               className={`w-full ${
-                isProcessing
+                isProcessing || !serviceStatus.isOpen
                   ? "bg-gray-500 cursor-not-allowed"
                   : "bg-amber-500 hover:bg-amber-400"
               } text-gray-900 py-3 px-4 rounded-md transition duration-300 ease-in-out shadow-lg font-semibold`}
             >
-              {isProcessing
+              {!serviceStatus.isOpen
+                ? "Service Unavailable"
+                : isProcessing
                 ? "Processing..."
                 : `Proceed to Payment (${(totalCost * 1.18).toFixed(
                     2

@@ -8,12 +8,10 @@ import OrderDetails from "../components/OrderDetails"
 import AdminOrderDetails from "../components/AdminOrderDetails"
 import AdminOrderManagement from "../components/AdminOrderManagement"
 import SystemSettingsSection from "../components/SystemSettingsSection"
-import ServiceStatusSection from "../components/ServiceStatusSection"
+import ServiceStatusManagement from "../components/ServiceStatusManagement"
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview")
-  const [serviceStatus, setServiceStatus] = useState(true)
-  const [reason, setReason] = useState("")
   const [priceSettings, setPriceSettings] = useState({ blackWhite: 1.0, color: 2.0 })
   const navigate = useNavigate()
 
@@ -66,13 +64,10 @@ const AdminDashboard = () => {
     { id: "overview", icon: BarChart, label: "Overview" },
     { id: "users", icon: Users, label: "User Management" },
     { id: "settings", icon: Settings, label: "System Settings" },
-    { id: "serviceStatus", icon: serviceStatus ? ToggleRight : ToggleLeft, label: "Service Status" },
+    { id: "serviceStatus", icon: ToggleRight, label: "Service Status" },
     {id: "orderDetails", icon: FileText, label: "Order Details"}
   ]
 
-  const handleServiceToggle = () => {
-    setServiceStatus(!serviceStatus)
-  }
 
   const handleLogout = () => {
     // Clear auth token
@@ -136,12 +131,7 @@ const AdminDashboard = () => {
           />
         )}
         {activeTab === "serviceStatus" && (
-          <ServiceStatusSection
-            serviceStatus={serviceStatus}
-            reason={reason}
-            setReason={setReason}
-            handleServiceToggle={handleServiceToggle}
-          />
+          <ServiceStatusManagement />
         )}
         {activeTab === "orderDetails" && <AdminOrderManagement />}
       </main>

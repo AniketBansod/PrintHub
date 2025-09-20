@@ -29,6 +29,10 @@ const OrderSchema = new mongoose.Schema({
     default: 'queue', // Changed default to 'queue'
     enum: ['queue', 'done', 'cancelled'] // Updated enum values
   },
+  paymentId: {
+    type: String,
+    default: null
+  },
   orderDate: { 
     type: Date, 
     default: Date.now 

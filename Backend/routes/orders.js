@@ -2,7 +2,9 @@ const express = require("express");
 const Order = require("../models/Order");
 const PrintJob = require("../models/PrintJob");
 const authMiddleware = require("../middleware/auth");
+const { checkServiceStatus } = require("../middleware/serviceStatus");
 const { v4: uuidv4 } = require('uuid');
+const { sendOrderConfirmationEmail } = require('../services/emailService');
 const router = express.Router();
 
 // Note: Removed 'path' and 'fs' imports as they are no longer needed
@@ -30,7 +32,7 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 // Create new order
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", authMiddleware, checkServiceStatus, async (req, res) => {
   try {
     console.log('Received order request:', req.body);
     console.log('User from token:', req.user);
@@ -84,6 +86,33 @@ router.post("/", authMiddleware, async (req, res) => {
     // Save order to database
     const savedOrder = await newOrder.save();
     console.log('Order saved successfully:', savedOrder);
+
+    // Send order confirmation email immediately after order creation
+    try {
+      // Get user details for email
+      const User = require('../models/User');
+      const user = await User.findById(req.user.id);
+      
+      if (user && user.email) {
+        const emailResult = await sendOrderConfirmationEmail(
+          user.email,
+          user.name,
+          savedOrder.orderId,
+          savedOrder.totalAmount
+        );
+        
+        if (emailResult.success) {
+          console.log('Order confirmation email sent successfully');
+        } else {
+          console.error('Failed to send confirmation email:', emailResult.error);
+        }
+      } else {
+        console.error('User not found or email not available for confirmation email');
+      }
+    } catch (emailError) {
+      console.error('Error sending confirmation email:', emailError);
+      // Don't fail the order creation if email fails
+    }
 
     // Create PrintJob records for each item in the order
     const printJobs = [];
@@ -139,14 +168,18 @@ router.post("/", authMiddleware, async (req, res) => {
 });
 
 // Endpoint to fetch order details by orderId
-router.get('/:orderId', async (req, res) => {
+router.get("/:orderId", authMiddleware, async (req, res) => {
   try {
-    const order = await Order.findOne({ orderId: req.params.orderId }).populate('userId', 'name email');
+    const { orderId } = req.params;
+    const order = await Order.findOne({ orderId }).populate('userId', 'name email');
+    
     if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
+      return res.status(404).json({ message: "Order not found" });
     }
+    
     res.json(order);
   } catch (err) {
+    console.error('Error fetching order:', err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -163,14 +196,33 @@ router.put('/:orderId/payment', authMiddleware, async (req, res) => {
     const order = await Order.findOneAndUpdate(
       { orderId },
       { 
-        status: 'completed',
+        status: 'queue', // Changed from 'completed' to 'queue'
         paymentId
       },
       { new: true }
-    );
+    ).populate('userId', 'name email');
 
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
+    }
+
+    // Send confirmation email after successful payment
+    try {
+      const emailResult = await sendOrderConfirmationEmail(
+        order.userId.email,
+        order.userId.name,
+        order.orderId,
+        order.totalAmount
+      );
+      
+      if (emailResult.success) {
+        console.log('Order confirmation email sent successfully');
+      } else {
+        console.error('Failed to send confirmation email:', emailResult.error);
+      }
+    } catch (emailError) {
+      console.error('Error sending confirmation email:', emailError);
+      // Don't fail the payment update if email fails
     }
 
     res.json(order);
@@ -183,51 +235,36 @@ router.put('/:orderId/payment', authMiddleware, async (req, res) => {
 });
 
 // Endpoint to update order status
-router.put('/orders/:orderId/status', async (req, res) => {
+router.put('/:orderId/status', authMiddleware, async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
-    
+
     // Validate status
-    if (!['queue', 'done', 'cancelled'].includes(status)) {
-      return res.status(400).json({ message: 'Invalid status. Must be queue, done, or cancelled' });
+    const validStatuses = ['queue', 'done', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ 
+        message: 'Invalid status', 
+        validStatuses 
+      });
     }
-    
+
     const order = await Order.findOneAndUpdate(
       { orderId },
       { status },
       { new: true }
-    );
-    
+    ).populate('userId', 'name email');
+
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
-    
-    res.json({ 
-      message: 'Order status updated successfully', 
-      order 
-    });
-  } catch (error) {
-    console.error('Error updating order status:', error);
-    res.status(500).json({ message: 'Error updating order status', error: error.message });
-  }
-});
 
-// Endpoint to fetch orders by status
-router.get('/orders/status/:status', async (req, res) => {
-  try {
-    const { status } = req.params;
-    
-    // Validate status
-    if (!['queue', 'done', 'cancelled'].includes(status)) {
-      return res.status(400).json({ message: 'Invalid status. Must be queue, done, or cancelled' });
-    }
-    
-    const orders = await Order.find({ status }).populate('userId', 'name email');
-    res.json(orders);
+    res.json(order);
   } catch (error) {
-    console.error('Error fetching orders by status:', error);
-    res.status(500).json({ message: 'Error fetching orders by status', error: error.message });
+    res.status(500).json({ 
+      message: 'Error updating order status', 
+      error: error.message 
+    });
   }
 });
 

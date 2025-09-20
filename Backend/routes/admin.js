@@ -1,8 +1,10 @@
 const express = require('express');
 const Order = require('../models/Order');
 const PrintJob = require('../models/PrintJob');
+const ServiceStatus = require('../models/ServiceStatus');
 const cloudinary = require('cloudinary').v2;
-// const { verifyAdmin } = require('../middleware/auth'); // Middleware to verify admin
+const { sendOrderReadyEmail } = require('../services/emailService');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -99,10 +101,30 @@ router.put('/orders/:orderId/status', async (req, res) => {
       { orderId },
       { status },
       { new: true }
-    );
+    ).populate('userId', 'name email');
     
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
+    }
+    
+    // Send email notification when status changes to 'done'
+    if (status === 'done') {
+      try {
+        const emailResult = await sendOrderReadyEmail(
+          order.userId.email,
+          order.userId.name,
+          order.orderId
+        );
+        
+        if (emailResult.success) {
+          console.log('Order ready email sent successfully');
+        } else {
+          console.error('Failed to send ready email:', emailResult.error);
+        }
+      } catch (emailError) {
+        console.error('Error sending ready email:', emailError);
+        // Don't fail the status update if email fails
+      }
     }
     
     res.json({ 
@@ -130,6 +152,104 @@ router.get('/orders/status/:status', async (req, res) => {
   } catch (error) {
     console.error('Error fetching orders by status:', error);
     res.status(500).json({ message: 'Error fetching orders by status', error: error.message });
+  }
+});
+
+// Test email endpoint (remove this in production)
+router.post('/test-email', async (req, res) => {
+  try {
+    const { email, name, orderId } = req.body;
+    
+    console.log('Testing email with:', { email, name, orderId });
+    
+    const { sendOrderConfirmationEmail } = require('../services/emailService');
+    const result = await sendOrderConfirmationEmail(email, name, orderId, 100);
+    
+    console.log('Email test result:', result);
+    
+    res.json({ 
+      message: 'Test email sent', 
+      result 
+    });
+  } catch (error) {
+    console.error('Test email error:', error);
+    res.status(500).json({ 
+      message: 'Error sending test email', 
+      error: error.message 
+    });
+  }
+});
+
+// Service Status Endpoints
+
+// Get current service status
+router.get('/service-status', authMiddleware, async (req, res) => {
+  try {
+    let serviceStatus = await ServiceStatus.findOne().sort({ updatedAt: -1 });
+    
+    // If no service status exists, create a default one (shop is open)
+    if (!serviceStatus) {
+      serviceStatus = new ServiceStatus({
+        isOpen: true,
+        reason: '',
+        updatedBy: null // Will be set when admin updates it
+      });
+      await serviceStatus.save();
+    }
+    
+    res.json({
+      isOpen: serviceStatus.isOpen,
+      reason: serviceStatus.reason,
+      updatedAt: serviceStatus.updatedAt
+    });
+  } catch (error) {
+    console.error('Error fetching service status:', error);
+    res.status(500).json({ message: 'Error fetching service status', error: error.message });
+  }
+});
+
+// Update service status (open/close shop)
+router.put('/service-status', authMiddleware, async (req, res) => {
+  try {
+    const { isOpen, reason } = req.body;
+    const adminId = req.user?.id;
+    
+    // Check if user is admin
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin role required.' });
+    }
+    
+    // Validate input
+    if (typeof isOpen !== 'boolean') {
+      return res.status(400).json({ message: 'isOpen must be a boolean value' });
+    }
+    
+    if (!isOpen && (!reason || reason.trim().length === 0)) {
+      return res.status(400).json({ message: 'Reason is required when closing the shop' });
+    }
+    
+    // Create new service status record
+    const serviceStatus = new ServiceStatus({
+      isOpen,
+      reason: reason || '',
+      updatedBy: adminId
+    });
+    
+    await serviceStatus.save();
+    
+    console.log(`Shop ${isOpen ? 'opened' : 'closed'} by admin. Reason: ${reason || 'N/A'}`);
+    
+    res.json({
+      message: `Shop ${isOpen ? 'opened' : 'closed'} successfully`,
+      serviceStatus: {
+        isOpen: serviceStatus.isOpen,
+        reason: serviceStatus.reason,
+        updatedAt: serviceStatus.updatedAt
+      }
+    });
+  } catch (error) {
+    console.error('Error updating service status:', error);
+    res.status(500).json({ message: 'Error updating service status', error: error.message });
   }
 });
 
