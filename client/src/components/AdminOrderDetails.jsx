@@ -152,61 +152,75 @@ const AdminOrderDetails = () => {
           </div>
         </div>
 
-        {/* Print Jobs */}
+        {/* Order Items */}
         <div className="space-y-6">
-          <h3 className="text-2xl font-semibold text-amber-400">Print Jobs</h3>
-          {printJobs.length === 0 ? (
+          <h3 className="text-2xl font-semibold text-amber-400">Order Items</h3>
+          {order.items && order.items.length === 0 ? (
             <div className="text-center text-gray-500 bg-gray-800 p-8 rounded-lg">
-              No print jobs found for this order.
+              No items found for this order.
             </div>
           ) : (
-            printJobs.map((job, index) => (
+            order.items.map((item, index) => (
               <motion.div
-                key={job._id}
+                key={index}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1, duration: 0.5 }}
                 className="bg-gray-800 p-6 rounded-lg shadow-lg"
               >
-                <h4 className="text-lg font-semibold mb-4 text-amber-400">Print Job #{index + 1}</h4>
+                <h4 className="text-lg font-semibold mb-4 text-amber-400">Item #{index + 1}</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
                     <p className="text-gray-400 text-sm">File:</p>
-                    <p className="font-semibold">{job.file}</p>
+                    <p className="font-semibold">{item.originalFilename || item.file}</p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm">Copies:</p>
-                    <p className="font-semibold">{job.copies}</p>
+                    <p className="font-semibold">{item.copies}</p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm">Size:</p>
-                    <p className="font-semibold">{job.size}</p>
+                    <p className="font-semibold">{item.size}</p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm">Color:</p>
-                    <p className="font-semibold">{job.color}</p>
+                    <p className="font-semibold">{item.color}</p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm">Sides:</p>
-                    <p className="font-semibold">{job.sides}</p>
+                    <p className="font-semibold">{item.sides}</p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm">Pages:</p>
-                    <p className="font-semibold">{job.pages}</p>
+                    <p className="font-semibold">{item.pages}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400 text-sm">Schedule:</p>
-                    <p className="font-semibold">{job.schedule}</p>
+                    <p className="text-gray-400 text-sm">Page Count:</p>
+                    <p className="font-semibold">{item.pageCount}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Urgency:</p>
+                    <p className="font-semibold">{item.urgency || 'Normal'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Printer:</p>
+                    <p className="font-semibold">{item.printer || 'Library'}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-sm">Pickup Time:</p>
+                    <p className="font-semibold">
+                      {item.pickupTime ? new Date(item.pickupTime).toLocaleString() : 'Not specified'}
+                    </p>
                   </div>
                   <div>
                     <p className="text-gray-400 text-sm">Price:</p>
-                    <p className="font-semibold text-amber-400">₹{job.estimatedPrice}</p>
+                    <p className="font-semibold text-amber-400">₹{item.estimatedPrice}</p>
                   </div>
                 </div>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => handleDownload(job.file, job.originalFilename)}
+                  onClick={() => handleDownload(item.file, item.originalFilename || item.file)}
                   className="flex items-center gap-2 bg-amber-500 text-gray-900 px-6 py-3 rounded-full hover:bg-amber-400 transition-colors"
                 >
                   <Download size={18} />

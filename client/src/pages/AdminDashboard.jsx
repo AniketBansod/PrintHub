@@ -7,67 +7,20 @@ import UsersSection from "../components/UsersSection"
 import OrderDetails from "../components/OrderDetails"
 import AdminOrderDetails from "../components/AdminOrderDetails"
 import AdminOrderManagement from "../components/AdminOrderManagement"
-import SystemSettingsSection from "../components/SystemSettingsSection"
+import PricingSettingsSection from "../components/PricingSettingsSection"
 import ServiceStatusManagement from "../components/ServiceStatusManagement"
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview")
-  const [priceSettings, setPriceSettings] = useState({ blackWhite: 1.0, color: 2.0 })
   const navigate = useNavigate()
-
-  useEffect(() => {
-    const fetchPricing = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/pricing")
-        const data = await response.json()
-        if (response.ok) {
-          setPriceSettings(data)
-        } else {
-          console.error(data.message)
-        }
-      } catch (error) {
-        console.error("Failed to fetch pricing settings:", error)
-      }
-    }
-
-    fetchPricing()
-  }, [])
-
-  const handlePriceChange = (e) => {
-    const { id, value } = e.target
-    setPriceSettings((prev) => ({
-      ...prev,
-      [id]: parseFloat(value),
-    }))
-  }
-
-  const savePricing = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/api/pricing", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(priceSettings),
-      })
-
-      if (!response.ok) {
-        const data = await response.json()
-        console.error(data.message)
-      }
-    } catch (error) {
-      console.error("Failed to update pricing settings:", error)
-    }
-  }
 
   const menuItems = [
     { id: "overview", icon: BarChart, label: "Overview" },
     { id: "users", icon: Users, label: "User Management" },
-    { id: "settings", icon: Settings, label: "System Settings" },
+    { id: "settings", icon: Settings, label: "Pricing Settings" },
     { id: "serviceStatus", icon: ToggleRight, label: "Service Status" },
     {id: "orderDetails", icon: FileText, label: "Order Details"}
   ]
-
 
   const handleLogout = () => {
     // Clear auth token
@@ -123,13 +76,7 @@ const AdminDashboard = () => {
         <h1 className="text-3xl font-bold mb-6">Admin Dashboard</h1>
         {activeTab === "overview" && <OverviewSection />}
         {activeTab === "users" && <UsersSection />}
-        {activeTab === "settings" && (
-          <SystemSettingsSection
-            priceSettings={priceSettings}
-            handlePriceChange={handlePriceChange}
-            savePricing={savePricing}
-          />
-        )}
+        {activeTab === "settings" && <PricingSettingsSection />}
         {activeTab === "serviceStatus" && (
           <ServiceStatusManagement />
         )}

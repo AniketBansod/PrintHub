@@ -2,12 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { useNotification } from '../context/NotificationContext';
 
 const UsersSection = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { showSuccess, showError } = useNotification();
 
   useEffect(() => {
     const fetchQueueOrders = async () => {
@@ -56,11 +58,11 @@ const UsersSection = () => {
       if (response.status === 200) {
         // Remove the order from the queue list
         setOrders(prevOrders => prevOrders.filter(order => order.orderId !== orderId));
-        alert('Order status updated to Done!');
+        showSuccess('Order status updated to Done!');
       }
     } catch (err) {
       console.error('Error updating order status:', err);
-      alert('Failed to update order status: ' + err.message);
+      showError('Failed to update order status: ' + err.message);
     }
   };
 

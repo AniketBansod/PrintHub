@@ -2,14 +2,17 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  darkMode: 'class', // Enable class-based dark mode
   theme: {
     extend: {
       colors: {
-        primary: '#1DB954',
-        secondary: '#191414',
-      },
+        amber: {
+          500: '#f59e0b',
+          600: '#d97706',
+        }
+      }
     },
   },
   plugins: [],

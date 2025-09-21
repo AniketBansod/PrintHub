@@ -7,8 +7,6 @@ const { v4: uuidv4 } = require('uuid');
 const { sendOrderConfirmationEmail } = require('../services/emailService');
 const router = express.Router();
 
-// Note: Removed 'path' and 'fs' imports as they are no longer needed
-
 // Function to generate unique order ID
 const generateOrderId = () => {
   const timestamp = Date.now().toString();
@@ -19,8 +17,11 @@ const generateOrderId = () => {
 // Get all orders for the authenticated user
 router.get("/", authMiddleware, async (req, res) => {
   try {
+    console.log('Fetching orders for user:', req.user.id);
     const orders = await Order.find({ userId: req.user.id })
       .sort({ orderDate: -1 }); // Sort by newest first
+    
+    console.log('Found orders:', orders.length);
     res.json(orders);
   } catch (error) {
     console.error('Error fetching orders:', error);
@@ -50,49 +51,63 @@ router.post("/", authMiddleware, checkServiceStatus, async (req, res) => {
     if (!totalAmount || typeof totalAmount !== 'number') {
       return res.status(400).json({ 
         message: "Invalid total amount",
-        details: "Total amount must be a number"
+        details: "Total amount must be a valid number"
       });
     }
 
-    // Generate unique order ID
-    const orderId = generateOrderId();
+    // Process items to add missing fields
+    const processedItems = items.map(item => {
+      // Calculate pageCount from pages string
+      let pageCount = 0;
+      if (item.pages) {
+        if (item.pages.toLowerCase() === 'all') {
+          pageCount = 1; // Default for 'all'
+        } else {
+          // Parse page ranges like "1-5", "1,3,5", "10"
+          const pages = item.pages.split(',').map(p => p.trim());
+          pages.forEach(page => {
+            if (page.includes('-')) {
+              const [start, end] = page.split('-').map(Number);
+              pageCount += (end - start + 1);
+            } else {
+              pageCount += 1;
+            }
+          });
+        }
+      }
 
-    // Map the items to match the Order schema
-    const validatedItems = items.map(item => {
-      // Map paperSize to size and ensure all required fields exist
       return {
-        file: item.file || '',
-        fileUrl: item.fileUrl || '', // Include the Cloudinary URL
-        copies: Number(item.copies) || 0,
-        size: item.paperSize || 'A4', // Map paperSize to size
-        color: item.color || 'Black & White',
-        sides: item.sides || 'Single-sided',
-        pages: String(item.pages) || '1', // Convert to string as per schema
-        estimatedPrice: Number(item.estimatedPrice) || 0
+        file: item.file, // Cloudinary URL
+        originalFilename: item.originalFilename || item.file, // Original filename
+        copies: item.copies,
+        size: item.size || 'A4',
+        color: item.color,
+        sides: item.sides,
+        pages: item.pages,
+        pageCount: pageCount,
+        estimatedPrice: item.price || item.estimatedPrice,
+        pickupTime: item.pickupTime ? new Date(item.pickupTime) : null,
+        urgency: item.urgency || 'Normal',
+        printer: item.printer || 'Library'
       };
     });
 
-    // Create new order with queue status
+    // Create new order
     const newOrder = new Order({
-      orderId: uuidv4(),
+      orderId: generateOrderId(),
       userId: req.user.id,
-      items: validatedItems,
+      items: processedItems,
       totalAmount: totalAmount,
-      status: 'queue' // Set default status to queue
+      status: 'queue' // Changed from 'pending' to 'queue'
     });
 
-    console.log('Creating order:', newOrder);
-
-    // Save order to database
     const savedOrder = await newOrder.save();
     console.log('Order saved successfully:', savedOrder);
 
     // Send order confirmation email immediately after order creation
     try {
-      // Get user details for email
       const User = require('../models/User');
       const user = await User.findById(req.user.id);
-      
       if (user && user.email) {
         const emailResult = await sendOrderConfirmationEmail(
           user.email,
@@ -100,7 +115,6 @@ router.post("/", authMiddleware, checkServiceStatus, async (req, res) => {
           savedOrder.orderId,
           savedOrder.totalAmount
         );
-        
         if (emailResult.success) {
           console.log('Order confirmation email sent successfully');
         } else {
@@ -111,160 +125,65 @@ router.post("/", authMiddleware, checkServiceStatus, async (req, res) => {
       }
     } catch (emailError) {
       console.error('Error sending confirmation email:', emailError);
-      // Don't fail the order creation if email fails
     }
 
-    // Create PrintJob records for each item in the order
-    const printJobs = [];
-    for (const item of validatedItems) {
-      // Use the fileUrl if available, otherwise use the filename
-      const fileToStore = item.fileUrl || item.file;
-      
-      // Find existing PrintJob by Cloudinary URL or filename
-      let printJob = await PrintJob.findOne({ 
-        $or: [
-          { file: fileToStore },
-          { file: { $regex: item.file, $options: 'i' } }
-        ]
-      });
-      
-      if (!printJob) {
-        // Create a new PrintJob with the Cloudinary URL or filename
-        printJob = new PrintJob({
-          printId: uuidv4(),
-          file: fileToStore, // This will be the Cloudinary URL if available
-          originalFilename: item.originalFilename || item.file, // Store original filename
-          copies: item.copies,
-          size: item.size,
-          color: item.color,
-          sides: item.sides,
-          pages: item.pages,
-          schedule: 'Not specified',
-          estimatedPrice: item.estimatedPrice,
-          orderId: savedOrder._id
-        });
-        await printJob.save();
-      } else {
-        // Link existing PrintJob to this order
-        printJob.orderId = savedOrder._id;
-        await printJob.save();
-      }
-      printJobs.push(printJob);
-    }
-    
-    res.status(201).json({ 
-      message: "Order placed successfully", 
-      order: savedOrder,
-      printJobs: printJobs
+    res.status(201).json({
+      message: "Order created successfully",
+      order: savedOrder
     });
+
   } catch (error) {
-    console.error('Order creation error:', error);
+    console.error('Error creating order:', error);
     res.status(500).json({ 
       message: "Error creating order", 
-      error: error.message,
-      stack: error.stack
-    });
-  }
-});
-
-// Endpoint to fetch order details by orderId
-router.get("/:orderId", authMiddleware, async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    const order = await Order.findOne({ orderId }).populate('userId', 'name email');
-    
-    if (!order) {
-      return res.status(404).json({ message: "Order not found" });
-    }
-    
-    res.json(order);
-  } catch (err) {
-    console.error('Error fetching order:', err);
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// ✅ DELETED the old local file download endpoint.
-// The frontend will now handle downloads directly from the Cloudinary URL stored in the database.
-
-// Endpoint to update payment status
-router.put('/:orderId/payment', authMiddleware, async (req, res) => {
-  try {
-    const { orderId } = req.params;
-    const { paymentId } = req.body;
-
-    const order = await Order.findOneAndUpdate(
-      { orderId },
-      { 
-        status: 'queue', // Changed from 'completed' to 'queue'
-        paymentId
-      },
-      { new: true }
-    ).populate('userId', 'name email');
-
-    if (!order) {
-      return res.status(404).json({ message: 'Order not found' });
-    }
-
-    // Send confirmation email after successful payment
-    try {
-      const emailResult = await sendOrderConfirmationEmail(
-        order.userId.email,
-        order.userId.name,
-        order.orderId,
-        order.totalAmount
-      );
-      
-      if (emailResult.success) {
-        console.log('Order confirmation email sent successfully');
-      } else {
-        console.error('Failed to send confirmation email:', emailResult.error);
-      }
-    } catch (emailError) {
-      console.error('Error sending confirmation email:', emailError);
-      // Don't fail the payment update if email fails
-    }
-
-    res.json(order);
-  } catch (error) {
-    res.status(500).json({ 
-      message: 'Error updating payment status', 
       error: error.message 
     });
   }
 });
 
-// Endpoint to update order status
-router.put('/:orderId/status', authMiddleware, async (req, res) => {
+// Update order status (for admin)
+router.put("/:orderId/status", authMiddleware, async (req, res) => {
   try {
-    const { orderId } = req.params;
     const { status } = req.body;
-
-    // Validate status
-    const validStatuses = ['queue', 'done', 'cancelled'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ 
-        message: 'Invalid status', 
-        validStatuses 
-      });
+    
+    // Check if user is admin
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin role required.' });
     }
 
-    const order = await Order.findOneAndUpdate(
-      { orderId },
-      { status },
-      { new: true }
-    ).populate('userId', 'name email');
-
+    const order = await Order.findOne({ orderId: req.params.orderId });
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    res.json(order);
+    order.status = status;
+    await order.save();
+
+    res.json({ message: 'Order status updated successfully', order });
   } catch (error) {
-    res.status(500).json({ 
-      message: 'Error updating order status', 
-      error: error.message 
-    });
+    console.error('Error updating order status:', error);
+    res.status(500).json({ message: 'Error updating order status' });
+  }
+});
+
+// Update payment status
+router.put("/:orderId/payment", authMiddleware, async (req, res) => {
+  try {
+    const { paymentId } = req.body;
+    
+    const order = await Order.findOne({ orderId: req.params.orderId });
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    order.paymentId = paymentId;
+    order.status = 'processing'; // Move to processing after payment
+    await order.save();
+
+    res.json({ message: 'Payment status updated successfully', order });
+  } catch (error) {
+    console.error('Error updating payment status:', error);
+    res.status(500).json({ message: 'Error updating payment status' });
   }
 });
 

@@ -82,6 +82,7 @@ const uploadToCloudinary = (file) => {
 const authRoutes = require("./routes/auth");
 const pricingRoutes = require("./routes/pricing");
 const printJobsRouter = require("./routes/printJobs");
+
 app.use("/api/auth", authRoutes);
 app.use("/api/pricing", pricingRoutes);
 
@@ -89,6 +90,28 @@ app.use("/api/pricing", pricingRoutes);
 app.use('/api/orders', ordersRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/printJobs', printJobsRouter);
+
+// Add a simple upload endpoint
+app.post('/api/upload', upload.single('file'), async (req, res) => {
+  try {
+    const file = req.file;
+    
+    if (!file) {
+      return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // Upload file to Cloudinary using the existing function
+    const cloudinaryResult = await uploadToCloudinary(file);
+    
+    res.json({ 
+      url: cloudinaryResult.secure_url,
+      originalFilename: file.originalname 
+    });
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    res.status(500).json({ message: 'Error uploading file', error: error.message });
+  }
+});
 
 // Endpoint to handle file uploads and store print options
 app.post('/api/print', upload.single('file'), async (req, res) => {

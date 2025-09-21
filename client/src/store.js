@@ -3,7 +3,7 @@ import printJobReducer from './slices/printJobSlice';
 
 const store = configureStore({
   reducer: {
-    printJob: printJobReducer,
+    printJobs: printJobReducer, // Changed from 'printJob' to 'printJobs'
   },
 });
 

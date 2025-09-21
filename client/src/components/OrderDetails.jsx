@@ -118,7 +118,7 @@ const OrderDetails = () => {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <p>
-                  <span className="font-semibold text-amber-400">File:</span> {item.file}
+                  <span className="font-semibold text-amber-400">File:</span> {item.originalFilename || item.file}
                 </p>
                 <p>
                   <span className="font-semibold text-amber-400">Copies:</span> {item.copies}
@@ -142,7 +142,7 @@ const OrderDetails = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => handleDownload(item.fileUrl || item.file, item.file)}
+                onClick={() => handleDownload(item.fileUrl || item.file, item.originalFilename || item.file)}
                 className="flex items-center gap-2 bg-amber-500 text-gray-900 px-6 py-3 rounded-full hover:bg-amber-400 transition-colors"
               >
                 <Download size={18} />

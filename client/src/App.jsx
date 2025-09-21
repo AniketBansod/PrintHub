@@ -7,37 +7,56 @@ import StudentDashboard from "./pages/StudentDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
 import ShopClosedPage from "./pages/ShopClosedPage"
 import { PricingProvider } from "./context/PricingContext"
+import { ThemeProvider } from "./context/ThemeContext"
 import OrderDetails from "./components/OrderDetails"
 import AdminOrderDetails from "./components/AdminOrderDetails"
 import { RazorpayProvider } from "./context/RazorpayContext"
 import ServiceStatusBanner from "./components/ServiceStatusBanner"
 import ProtectedStudentRoute from "./components/ProtectedStudentRoute"
+import { NotificationProvider, useNotification } from './context/NotificationContext';
+import NotificationContainer from './components/Notification';
 
+// Inner App component that can use the notification context
+const AppContent = () => {
+  const { notifications, removeNotification } = useNotification();
+
+  return (
+    <Router>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<SignUpPage />} />
+          <Route path="/student/dashboard" element={
+            <ProtectedStudentRoute>
+              <StudentDashboard />
+            </ProtectedStudentRoute>
+          } />
+          <Route path="/student/shop-closed" element={<ShopClosedPage />} />
+          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/order/:orderId" element={<OrderDetails />} />
+          <Route path="/admin/orders/:orderId" element={<AdminOrderDetails />} />
+        </Routes>
+        <NotificationContainer 
+          notifications={notifications} 
+          onRemove={removeNotification} 
+        />
+      </div>
+    </Router>
+  );
+};
 
 const App = () => {
   return (
-    <PricingProvider>
-      <RazorpayProvider>
-        <Router>
-          <div className="min-h-screen bg-gray-50">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<SignUpPage />} />
-              <Route path="/student/dashboard" element={
-                <ProtectedStudentRoute>
-                  <StudentDashboard />
-                </ProtectedStudentRoute>
-              } />
-              <Route path="/student/shop-closed" element={<ShopClosedPage />} />
-              <Route path="/admin/dashboard" element={<AdminDashboard />} />
-              <Route path="/order/:orderId" element={<OrderDetails />} />
-              <Route path="/admin/orders/:orderId" element={<AdminOrderDetails />} />
-            </Routes>
-          </div>
-        </Router>
-      </RazorpayProvider>
-    </PricingProvider>
+    <ThemeProvider>
+      <PricingProvider>
+        <RazorpayProvider>
+          <NotificationProvider>
+            <AppContent />
+          </NotificationProvider>
+        </RazorpayProvider>
+      </PricingProvider>
+    </ThemeProvider>
   )
 }
 

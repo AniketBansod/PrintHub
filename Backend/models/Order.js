@@ -12,13 +12,18 @@ const OrderSchema = new mongoose.Schema({
     required: true 
   },
   items: [{
-    file: { type: String, required: true },
+    file: { type: String, required: true }, // Cloudinary URL
+    originalFilename: { type: String, required: true }, // Original filename
     copies: { type: Number, required: true },
     size: { type: String, required: true },
     color: { type: String, required: true },
     sides: { type: String, required: true },
     pages: { type: String, required: true },
-    estimatedPrice: { type: Number, required: true }
+    pageCount: { type: Number, required: true },
+    estimatedPrice: { type: Number, required: true },
+    pickupTime: { type: Date },
+    urgency: { type: String, default: 'Normal' },
+    printer: { type: String, default: 'Library' }
   }],
   totalAmount: { 
     type: Number, 
@@ -26,8 +31,8 @@ const OrderSchema = new mongoose.Schema({
   },
   status: { 
     type: String, 
-    default: 'queue', // Changed default to 'queue'
-    enum: ['queue', 'done', 'cancelled'] // Updated enum values
+    default: 'queue',
+    enum: ['queue', 'done', 'cancelled']
   },
   paymentId: {
     type: String,
