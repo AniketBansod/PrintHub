@@ -14,6 +14,7 @@ import NewPrintSection from "../components/NewPrintSection.jsx"
 import Chatbot from '../components/Chatbot'
 import ServiceStatusBanner from '../components/ServiceStatusBanner'
 import ThemeToggle from '../components/ThemeToggle'
+import ProfileSection from "../components/ProfileSection.jsx"
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard")
@@ -54,6 +55,7 @@ const StudentDashboard = () => {
     { id: "newPrint", icon: FileText, label: "New Print" },
     { id: "cart", icon: ShoppingCart, label: "Cart" },
     { id: "history", icon: History, label: "Order History" },
+    { id: "profile", icon: User, label: "Profile" },
     { id: "settings", icon: Settings, label: "Settings" },
   ]
 
@@ -124,6 +126,7 @@ const StudentDashboard = () => {
         {activeTab === "newPrint" && <NewPrintSection />}
         {activeTab === "cart" && <CartSection />}
         {activeTab === "history" && <OrderHistorySection />}
+        {activeTab === "profile" && <ProfileSection />}
         {activeTab === "settings" && <SettingsSection />}
       </main>
       
