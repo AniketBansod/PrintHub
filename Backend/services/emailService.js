@@ -186,8 +186,60 @@ const sendOrderReadyEmail = async (studentEmail, studentName, orderId) => {
   return await sendEmail(studentEmail, template.subject, template.html);
 };
 
+const sendOTPEmail = async (email, otp) => {
+  try {
+    const transporter = createTransporter();
+
+    const mailOptions = {
+      from: `"PrintHub" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: 'Email Verification - PrintEase',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #F59E0B, #D97706); padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">PrintEase</h1>
+            <p style="color: white; margin: 5px 0 0 0;">Campus Printing Hub</p>
+          </div>
+          
+          <div style="padding: 30px; background-color: #f9f9f9;">
+            <h2 style="color: #333; margin-bottom: 20px;">Email Verification</h2>
+            <p style="color: #666; line-height: 1.6;">
+              Thank you for signing up with PrintEase! To complete your registration, please verify your email address using the OTP below:
+            </p>
+            
+            <div style="background-color: white; border: 2px solid #F59E0B; border-radius: 10px; padding: 20px; text-align: center; margin: 20px 0;">
+              <h3 style="color: #F59E0B; font-size: 32px; letter-spacing: 5px; margin: 0;">${otp}</h3>
+            </div>
+            
+            <p style="color: #666; line-height: 1.6;">
+              <strong>Important:</strong>
+            </p>
+            <ul style="color: #666; line-height: 1.6;">
+              <li>This OTP is valid for 5 minutes only</li>
+              <li>You have 3 attempts to enter the correct OTP</li>
+              <li>If you didn't request this verification, please ignore this email</li>
+            </ul>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+              <p style="color: #999; font-size: 12px; text-align: center;">
+                This is an automated message. Please do not reply to this email.
+              </p>
+            </div>
+          </div>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    return { success: true };
+  } catch (error) {
+    console.error('Error sending OTP email:', error);
+    return { success: false, error: error.message };
+  }
+};
+
 module.exports = {
   sendOrderConfirmationEmail,
   sendOrderReadyEmail,
-  sendEmail
+  sendOTPEmail
 };

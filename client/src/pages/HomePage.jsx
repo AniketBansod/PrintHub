@@ -1,114 +1,197 @@
 import { motion } from "framer-motion"
 import { Link } from "react-router-dom"
-import { ChevronRight } from "lucide-react"
+import { User, Shield, ArrowRight, Printer, Users, BarChart3, Clock } from "lucide-react"
 
 const HomePage = () => {
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col">
-      <header className="bg-gray-800 py-4 px-6 flex justify-between items-center">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaf6-sDpgArQz0rfE__xtbQIT09llY_Wp8nA&s" alt="Campus Printing Hub Logo" className="h-15 w-11" />
-        <nav className="space-x-4">
-          <Link to="/login" className="text-amber-400 hover:text-amber-300 transition-colors">
-            Login
-          </Link>
-          <Link
-            to="/register"
-            className="bg-amber-500 text-gray-900 px-4 py-2 rounded-full hover:bg-amber-400 transition-colors"
-          >
-            Sign Up
-          </Link>
-        </nav>
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 dark:from-gray-900 dark:to-gray-800">
+      {/* Header */}
+      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center">
+              <img
+                src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaf6-sDpgArQz0rfE__xtbQIT09llY_Wp8nA&s"
+                alt="PrintEase Logo"
+                className="h-10 w-10 mr-3"
+              />
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">PrintEase</h1>
+            </div>
+            <div className="flex space-x-4">
+              <Link
+                to="/login"
+                className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200"
+              >
+                Student Login
+              </Link>
+              <Link
+                to="/admin/login"
+                className="px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors duration-200"
+              >
+                Admin Login
+              </Link>
+            </div>
+          </div>
+        </div>
       </header>
 
-      <main className="flex-grow container mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-4xl md:text-6xl font-bold text-amber-400 mb-4">Campus Printing Hub</h1>
-          <p className="text-xl md:text-2xl text-gray-300 mb-8">Effortless printing for your academic journey</p>
-        </motion.div>
+      {/* Hero Section */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-16">
+          <motion.h1
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-5xl font-bold text-gray-900 dark:text-white mb-6"
+          >
+            Welcome to{" "}
+            <span className="text-amber-500">PrintEase</span>
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto"
+          >
+            Your one-stop solution for campus printing services. Fast, reliable, and convenient printing for students and administrators.
+          </motion.p>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12"
-        >
-          <FeatureCard
-            icon="🖨️"
-            title="AI-Powered Printing"
-            description="Smart suggestions for eco-friendly and cost-effective printing"
-          />
-          <FeatureCard
-            icon="🗓️"
-            title="Flexible Scheduling"
-            description="Book your prints in advance and pick up at your convenience"
-          />
-          <FeatureCard
-            icon="💳"
-            title="Easy Payments"
-            description="Seamless integration with campus card and online options"
-          />
-        </motion.div>
+        {/* Role Selection Cards */}
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-16">
+          {/* Student Card */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-shadow duration-300"
+          >
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full mb-6">
+                <User className="h-8 w-8 text-amber-600 dark:text-amber-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                Student Portal
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
+                Upload documents, customize print settings, and manage your printing orders with ease.
+              </p>
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                  <Printer className="h-4 w-4 mr-2 text-amber-500" />
+                  Upload and print documents
+                </div>
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                  <Clock className="h-4 w-4 mr-2 text-amber-500" />
+                  Track order status
+                </div>
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                  <BarChart3 className="h-4 w-4 mr-2 text-amber-500" />
+                  View printing history
+                </div>
+              </div>
+              <Link
+                to="/register"
+                className="inline-flex items-center justify-center w-full px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors duration-200 font-semibold"
+              >
+                Get Started as Student
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </div>
+          </motion.div>
 
+          {/* Admin Card */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="bg-gradient-to-br from-blue-600 to-purple-700 rounded-2xl shadow-xl p-8 text-white hover:shadow-2xl transition-shadow duration-300"
+          >
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-6">
+                <Shield className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold mb-4">
+                Admin Portal
+              </h3>
+              <p className="text-blue-100 mb-6">
+                Manage printing services, monitor orders, and oversee system operations with comprehensive admin tools.
+              </p>
+              <div className="space-y-3 mb-8">
+                <div className="flex items-center text-sm text-blue-100">
+                  <Users className="h-4 w-4 mr-2 text-white" />
+                  Manage user orders
+                </div>
+                <div className="flex items-center text-sm text-blue-100">
+                  <BarChart3 className="h-4 w-4 mr-2 text-white" />
+                  System analytics
+                </div>
+                <div className="flex items-center text-sm text-blue-100">
+                  <Shield className="h-4 w-4 mr-2 text-white" />
+                  Admin controls
+                </div>
+              </div>
+              <Link
+                to="/admin/login"
+                className="inline-flex items-center justify-center w-full px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-colors duration-200 font-semibold border border-white/30"
+              >
+                Access Admin Portal
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Features Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="relative rounded-lg overflow-hidden shadow-2xl"
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className="text-center"
         >
-          <img
-            src="https://files.yappe.in/place/full/viit-college-9682621.webp"
-            alt="Campus at Night"
-            className="w-full h-64 md:h-96 object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
-          <div className="absolute bottom-0 left-0 right-0 p-6">
-            <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">24/7 Printing Access</h2>
-            <p className="text-gray-200 mb-4">
-              Experience the future of campus printing - available anytime, anywhere.
-            </p>
-            <Link
-              to="/register"
-              className="inline-flex items-center bg-amber-500 text-gray-900 px-6 py-3 rounded-full hover:bg-amber-400 transition-colors"
-            >
-              Get Started
-              <ChevronRight className="ml-2 h-5 w-5" />
-            </Link>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+            Why Choose PrintEase?
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="p-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full mb-4">
+                <Printer className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                Fast Printing
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Quick and reliable printing services with high-quality output.
+              </p>
+            </div>
+            <div className="p-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full mb-4">
+                <Clock className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                24/7 Access
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Upload and manage your print jobs anytime, anywhere.
+              </p>
+            </div>
+            <div className="p-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-full mb-4">
+                <BarChart3 className="h-6 w-6 text-amber-600 dark:text-amber-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                Track Orders
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Monitor your printing orders and get real-time updates.
+              </p>
+            </div>
           </div>
         </motion.div>
       </main>
-
-      <footer className="bg-gray-800 text-gray-300 py-8 px-4">
-        <div className="container mx-auto flex flex-col md:flex-row justify-between items-center">
-          <p>&copy; 2025 Campus Printing Hub. All rights reserved.</p>
-          <nav className="flex space-x-4 mt-4 md:mt-0">
-            <Link to="/about" className="hover:text-amber-400 transition-colors">
-              About
-            </Link>
-            <Link to="/contact" className="hover:text-amber-400 transition-colors">
-              Contact
-            </Link>
-            <Link to="/privacy" className="hover:text-amber-400 transition-colors">
-              Privacy Policy
-            </Link>
-          </nav>
-        </div>
-      </footer>
     </div>
   )
 }
-
-const FeatureCard = ({ icon, title, description }) => (
-  <motion.div whileHover={{ scale: 1.05 }} className="bg-gray-800 p-6 rounded-lg shadow-lg text-center">
-    <div className="text-4xl mb-4">{icon}</div>
-    <h3 className="text-xl font-semibold text-amber-400 mb-2">{title}</h3>
-    <p className="text-gray-300">{description}</p>
-  </motion.div>
-)
 
 export default HomePage
 

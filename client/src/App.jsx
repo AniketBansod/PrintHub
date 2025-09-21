@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import HomePage from "./pages/HomePage"
 import LoginPage from "./pages/LoginPage"
 import SignUpPage from "./pages/SignUpPage"
+import AdminLoginPage from "./pages/AdminLoginPage"
+import AdminRegisterPage from "./pages/AdminRegisterPage"
 import StudentDashboard from "./pages/StudentDashboard"
 import AdminDashboard from "./pages/AdminDashboard"
 import ShopClosedPage from "./pages/ShopClosedPage"
@@ -27,6 +29,8 @@ const AppContent = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<SignUpPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin/register" element={<AdminRegisterPage />} />
           <Route path="/student/dashboard" element={
             <ProtectedStudentRoute>
               <StudentDashboard />
