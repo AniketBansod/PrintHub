@@ -1,17 +1,20 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, User, ArrowLeft, AlertCircle } from "lucide-react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
     try {
       const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
@@ -20,15 +23,10 @@ const Login = () => {
         },
         body: JSON.stringify({ email, password }),
       });
-
       const data = await response.json();
       if (!response.ok) throw new Error(data.message);
-
-      // Store token and user info in local storage or context
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-
-      // Redirect based on role
       if (data.user.role === "admin") {
         navigate("/admin/dashboard");
       } else {
@@ -36,6 +34,8 @@ const Login = () => {
       }
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,78 +45,112 @@ const Login = () => {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md"
+        className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md relative"
       >
+        {/* Back to Home Button */}
+        <Link
+          to="/"
+          className="absolute -top-16 left-0 flex items-center text-gray-300 hover:text-white transition-colors duration-200"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home
+        </Link>
+        {/* Header */}
         <div className="text-center mb-8">
-          <img
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaf6-sDpgArQz0rfE__xtbQIT09llY_Wp8nA&s"
-            alt="Campus Printing Hub Logo"
-            className="w-20 h-20 mx-auto mb-4"
-          />
-          <h2 className="text-3xl font-bold text-amber-400">Welcome Back</h2>
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-full mb-4">
+            <User className="h-8 w-8 text-gray-900" />
+          </div>
+          <h1 className="text-3xl font-bold text-amber-400 mb-2">Student Portal</h1>
+          <p className="text-gray-300">Sign in to access your PrintEase account</p>
         </div>
+        {/* Error Display */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-red-900/50 border border-red-500/30 rounded-lg flex items-center"
+          >
+            <AlertCircle className="h-5 w-5 text-red-400 mr-3 flex-shrink-0" />
+            <p className="text-red-300 text-sm">{error}</p>
+          </motion.div>
+        )}
+        {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
-          {error && <p className="text-red-500">{error}</p>}
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-300"
-            >
-              Email
+            <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+              Student Email
             </label>
             <input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md bg-gray-700 border border-gray-600 text-gray-100 px-3 py-1.5 text-sm shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-40 transition-all duration-200"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+              placeholder="student@printease.com"
               required
             />
           </div>
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-300"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
               Password
             </label>
-            <div className="mt-1 relative">
+            <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-md bg-gray-700 border border-gray-600 text-gray-100 pr-10 px-3 py-1.5 text-sm shadow-sm focus:border-amber-500 focus:ring focus:ring-amber-500 focus:ring-opacity-40 transition-all duration-200"
+                className="w-full px-4 py-3 pr-12 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                placeholder="Enter your password"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-300"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
               >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5" />
-                ) : (
-                  <Eye className="h-5 w-5" />
-                )}
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
           </div>
-          <div>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              type="submit"
-              className="w-full bg-amber-500 text-gray-900 py-2 px-4 rounded-md hover:bg-amber-400 transition duration-300 ease-in-out shadow-lg font-semibold"
-            >
-              Login
-            </motion.button>
-          </div>
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            disabled={loading}
+            className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-300 ${
+              loading
+                ? "bg-gray-600 cursor-not-allowed text-gray-400"
+                : "bg-amber-500 hover:bg-amber-400 text-gray-900 shadow-lg"
+            }`}
+          >
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-400 mr-2"></div>
+                Signing In...
+              </div>
+            ) : (
+              "Sign In to Student Portal"
+            )}
+          </motion.button>
         </form>
+        {/* Footer */}
+        <div className="mt-8 text-center">
+          <p className="text-gray-300 text-sm">
+            Don't have an account?{' '}
+            <Link
+              to="/register"
+              className="text-amber-400 hover:text-amber-300 font-medium transition-colors duration-200"
+            >
+              Sign up
+            </Link>
+          </p>
+        </div>
+        {/* Info Notice */}
         <div className="mt-6 text-center">
-          <Link to="/register" className="text-amber-400 hover:underline">
-            Don't have an account? Sign up
-          </Link>
+          <p className="text-gray-400 text-xs">
+            This is a secure student portal. Your activities are private and protected.
+          </p>
         </div>
       </motion.div>
     </div>

@@ -105,35 +105,35 @@ const HomePage = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="bg-gradient-to-br from-blue-600 to-purple-700 rounded-2xl shadow-xl p-8 text-white hover:shadow-2xl transition-shadow duration-300"
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-shadow duration-300"
           >
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 rounded-full mb-6">
-                <Shield className="h-8 w-8 text-white" />
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full mb-6">
+                <Shield className="h-8 w-8 text-amber-600 dark:text-amber-400" />
               </div>
-              <h3 className="text-2xl font-bold mb-4">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
                 Admin Portal
               </h3>
-              <p className="text-blue-100 mb-6">
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 Manage printing services, monitor orders, and oversee system operations with comprehensive admin tools.
               </p>
               <div className="space-y-3 mb-8">
-                <div className="flex items-center text-sm text-blue-100">
-                  <Users className="h-4 w-4 mr-2 text-white" />
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                  <Users className="h-4 w-4 mr-2 text-amber-500" />
                   Manage user orders
                 </div>
-                <div className="flex items-center text-sm text-blue-100">
-                  <BarChart3 className="h-4 w-4 mr-2 text-white" />
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                  <BarChart3 className="h-4 w-4 mr-2 text-amber-500" />
                   System analytics
                 </div>
-                <div className="flex items-center text-sm text-blue-100">
-                  <Shield className="h-4 w-4 mr-2 text-white" />
+                <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
+                  <Shield className="h-4 w-4 mr-2 text-amber-500" />
                   Admin controls
                 </div>
               </div>
               <Link
                 to="/admin/login"
-                className="inline-flex items-center justify-center w-full px-6 py-3 bg-white/20 backdrop-blur-sm text-white rounded-lg hover:bg-white/30 transition-colors duration-200 font-semibold border border-white/30"
+                className="inline-flex items-center justify-center w-full px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-colors duration-200 font-semibold"
               >
                 Access Admin Portal
                 <ArrowRight className="h-4 w-4 ml-2" />
