@@ -17,6 +17,7 @@ import ServiceStatusBanner from "./components/ServiceStatusBanner"
 import ProtectedStudentRoute from "./components/ProtectedStudentRoute"
 import { NotificationProvider, useNotification } from './context/NotificationContext';
 import NotificationContainer from './components/Notification';
+import ForgotPassword from "./pages/ForgotPassword"
 
 // Inner App component that can use the notification context
 const AppContent = () => {
@@ -29,6 +30,7 @@ const AppContent = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<SignUpPage />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin/register" element={<AdminRegisterPage />} />
           <Route path="/student/dashboard" element={

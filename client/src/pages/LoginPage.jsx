@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, User, ArrowLeft, AlertCircle } from "lucide-react";
+import { useRef } from "react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -10,6 +11,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const resetModalRef = useRef();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -112,6 +114,15 @@ const Login = () => {
                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
+          </div>
+          <div className="flex justify-end">
+            <button
+              type="button"
+              className="text-amber-400 hover:underline text-sm"
+              onClick={() => navigate('/forgot-password', { state: { email } })}
+            >
+              Forgot password?
+            </button>
           </div>
           <motion.button
             whileHover={{ scale: 1.02 }}

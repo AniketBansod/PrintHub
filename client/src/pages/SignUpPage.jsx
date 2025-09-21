@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { User, Mail, Lock, Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useNotification } from "../context/NotificationContext";
-
 const SignUpPage = () => {
   const [step, setStep] = useState(1); // 1: Basic info, 2: OTP verification, 3: Complete
   const [formData, setFormData] = useState({

@@ -265,6 +265,82 @@ router.post("/admin-register", async (req, res) => {
   }
 });
 
+// Request password reset (send OTP if user exists)
+router.post("/request-password-reset", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "No user found with this email" });
+    // Generate OTP
+    const otp = generateOTP();
+    await OTP.deleteOne({ email });
+    const otpRecord = new OTP({
+      email,
+      otp,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000)
+    });
+    await otpRecord.save();
+    const emailResult = await sendOTPEmail(email, otp);
+    if (!emailResult.success) {
+      await OTP.deleteOne({ email });
+      return res.status(500).json({ message: "Failed to send OTP email" });
+    }
+    res.json({ message: "OTP sent successfully to your email", email });
+  } catch (error) {
+    res.status(500).json({ message: "Error sending OTP", error: error.message });
+  }
+});
+
+// Verify OTP for password reset
+router.post("/verify-reset-otp", async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) return res.status(400).json({ message: "Email and OTP are required" });
+    const otpRecord = await OTP.findOne({ email });
+    if (!otpRecord) return res.status(400).json({ message: "OTP not found or expired" });
+    if (new Date() > otpRecord.expiresAt) {
+      await OTP.deleteOne({ email });
+      return res.status(400).json({ message: "OTP has expired" });
+    }
+    if (otpRecord.attempts >= 3) {
+      await OTP.deleteOne({ email });
+      return res.status(400).json({ message: "Too many failed attempts. Please request a new OTP" });
+    }
+    if (otpRecord.otp !== otp) {
+      otpRecord.attempts += 1;
+      await otpRecord.save();
+      return res.status(400).json({ message: "Invalid OTP", attemptsLeft: 3 - otpRecord.attempts });
+    }
+    otpRecord.isVerified = true;
+    await otpRecord.save();
+    res.json({ message: "OTP verified successfully", email, verified: true });
+  } catch (error) {
+    res.status(500).json({ message: "Error verifying OTP", error: error.message });
+  }
+});
+
+// Reset password (after OTP verified)
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    if (!email || !newPassword) return res.status(400).json({ message: "Email and new password are required" });
+    if (newPassword.length < 6) return res.status(400).json({ message: "Password must be at least 6 characters long" });
+    const otpRecord = await OTP.findOne({ email, isVerified: true });
+    if (!otpRecord) return res.status(400).json({ message: "OTP not verified for this email" });
+    const user = await User.findOne({ email });
+    if (!user) return res.status(400).json({ message: "User not found" });
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    user.password = hashedPassword;
+    await user.save();
+    await OTP.deleteOne({ email });
+    res.json({ message: "Password reset successful" });
+  } catch (error) {
+    res.status(500).json({ message: "Error resetting password", error: error.message });
+  }
+});
+
 // Get user profile
 router.get("/profile", authMiddleware, async (req, res) => {
   try {
