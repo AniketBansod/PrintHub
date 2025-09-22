@@ -1,6 +1,14 @@
-import { motion } from "framer-motion"
-import { Link } from "react-router-dom"
-import { User, Shield, ArrowRight, Printer, Users, BarChart3, Clock } from "lucide-react"
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import {
+  User,
+  Shield,
+  ArrowRight,
+  Printer,
+  Users,
+  BarChart3,
+  Clock,
+} from "lucide-react";
 
 const HomePage = () => {
   return (
@@ -12,10 +20,12 @@ const HomePage = () => {
             <div className="flex items-center">
               <img
                 src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaf6-sDpgArQz0rfE__xtbQIT09llY_Wp8nA&s"
-                alt="PrintEase Logo"
+                alt="PrintHub Logo"
                 className="h-10 w-10 mr-3"
               />
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">PrintEase</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                PrintHub
+              </h1>
             </div>
             <div className="flex space-x-4">
               <Link
@@ -44,8 +54,7 @@ const HomePage = () => {
             transition={{ duration: 0.6 }}
             className="text-5xl font-bold text-gray-900 dark:text-white mb-6"
           >
-            Welcome to{" "}
-            <span className="text-amber-500">PrintEase</span>
+            Welcome to <span className="text-amber-500">PrintHub</span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 20 }}
@@ -53,7 +62,8 @@ const HomePage = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto"
           >
-            Your one-stop solution for campus printing services. Fast, reliable, and convenient printing for students and administrators.
+            Your one-stop solution for campus printing services. Fast, reliable,
+            and convenient printing for students and administrators.
           </motion.p>
         </div>
 
@@ -74,7 +84,8 @@ const HomePage = () => {
                 Student Portal
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Upload documents, customize print settings, and manage your printing orders with ease.
+                Upload documents, customize print settings, and manage your
+                printing orders with ease.
               </p>
               <div className="space-y-3 mb-8">
                 <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
@@ -115,7 +126,8 @@ const HomePage = () => {
                 Admin Portal
               </h3>
               <p className="text-gray-600 dark:text-gray-300 mb-6">
-                Manage printing services, monitor orders, and oversee system operations with comprehensive admin tools.
+                Manage printing services, monitor orders, and oversee system
+                operations with comprehensive admin tools.
               </p>
               <div className="space-y-3 mb-8">
                 <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
@@ -150,7 +162,7 @@ const HomePage = () => {
           className="text-center"
         >
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-            Why Choose PrintEase?
+            Why Choose PrintHub?
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="p-6">
@@ -190,8 +202,7 @@ const HomePage = () => {
         </motion.div>
       </main>
     </div>
-  )
-}
+  );
+};
 
-export default HomePage
-
+export default HomePage;

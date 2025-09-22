@@ -1,6 +1,7 @@
 const express = require('express');
 const Order = require('../models/Order');
 const PrintJob = require('../models/PrintJob');
+const User = require('../models/User'); 
 const ServiceStatus = require('../models/ServiceStatus');
 const cloudinary = require('cloudinary').v2;
 const { sendOrderReadyEmail } = require('../services/emailService');
@@ -83,6 +84,123 @@ router.get('/orders/:orderId', async (req, res) => {
   } catch (error) {
     console.error('Error fetching order details:', error);
     res.status(500).json({ message: 'Error fetching order details', error: error.message });
+  }
+});
+
+
+router.get('/overview', authMiddleware, async (req, res) => {
+  try {
+    // Ensure only admins can access
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Access denied. Admin role required.' });
+    }
+
+    // Pending requests (orders still in queue)
+    const pendingRequests = await Order.countDocuments({ status: 'queue' });
+
+    // Total users
+    const totalUsers = await User.countDocuments();
+
+    // Total revenue (all-time)
+    const revenueAgg = await Order.aggregate([
+      { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+    ]);
+    const totalRevenue = revenueAgg.length > 0 ? revenueAgg[0].total : 0;
+
+    // Total print jobs today
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    const totalPrintJobsToday = await PrintJob.countDocuments({
+      createdAt: { $gte: startOfToday, $lte: endOfToday }
+    });
+
+    // Total revenue this month
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+    const revenueMonthAgg = await Order.aggregate([
+      { $match: { orderDate: { $gte: startOfMonth, $lte: endOfMonth } } },
+      { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+    ]);
+    const totalRevenueThisMonth = revenueMonthAgg.length > 0 ? revenueMonthAgg[0].total : 0;
+
+    res.json({
+      pendingRequests,
+      totalUsers,
+      totalRevenue,
+      totalPrintJobsToday,
+      totalRevenueThisMonth
+    });
+  } catch (error) {
+    console.error("Error fetching overview stats:", error);
+    res.status(500).json({ message: "Error fetching overview stats", error: error.message });
+  }
+});
+
+
+// GET /api/admin/urgent-requests
+// GET /api/admin/urgent-requests
+// GET /api/admin/urgent-requests
+router.get("/urgent-requests", authMiddleware, async (req, res) => {
+  try {
+    const now = new Date();
+    const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+
+    const urgentOrders = await Order.find({
+      status: "queue",   // ✅ only pending orders (same as UsersSection)
+      $or: [
+        { "items.urgency": { $in: ["Urgent", "Express"] } },
+        { "items.pickupTime": { $lte: oneHourLater } }
+      ]
+    })
+      .populate("userId", "name email")
+      .sort({ "items.pickupTime": 1 });
+
+    res.json(urgentOrders);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching urgent requests", error: err.message });
+  }
+});
+
+
+// GET /api/admin/queue-prediction
+router.get("/queue-prediction", authMiddleware, async (req, res) => {
+  try {
+  const start = new Date();
+  start.setHours(0,0,0,0); // midnight today
+  const end = new Date();
+  end.setDate(end.getDate() + 2); // midnight 2 days later
+
+  const orders = await Order.find({
+  status: "queue",
+  "items.pickupTime": { $gte: start, $lt: end }
+  });
+
+    // Group by hour slot
+    const slots = {};
+    orders.forEach(order => {
+      order.items.forEach(item => {
+        if (item.pickupTime) {
+          const date = new Date(item.pickupTime);
+          const dayKey = date.toDateString();
+          const hour = date.getHours();
+          const slot = `${hour}:00 - ${hour + 1}:00`;
+
+          if (!slots[dayKey]) slots[dayKey] = {};
+          if (!slots[dayKey][slot]) slots[dayKey][slot] = 0;
+          slots[dayKey][slot]++;
+        }
+      });
+    });
+
+    res.json(slots);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching queue prediction", error: err.message });
   }
 });
 

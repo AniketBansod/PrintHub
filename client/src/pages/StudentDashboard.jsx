@@ -60,9 +60,10 @@ const StudentDashboard = () => {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex transition-colors duration-200">
+    // The only change is here: min-h-screen -> h-screen and add overflow-hidden
+    <div className="h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 flex transition-colors duration-200 overflow-hidden">
       {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-gray-800 p-4 flex flex-col h-screen border-r border-gray-200 dark:border-gray-700">
+      <aside className="w-64 bg-white dark:bg-gray-800 p-4 flex flex-col h-full border-r border-gray-200 dark:border-gray-700">
         <div className="mb-8">
           <img
             src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQaf6-sDpgArQz0rfE__xtbQIT09llY_Wp8nA&s"
@@ -110,7 +111,7 @@ const StudentDashboard = () => {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Content (this part will now scroll independently) */}
       <main className="flex-1 p-8 overflow-y-auto">
         <ServiceStatusBanner />
         
@@ -136,4 +137,3 @@ const StudentDashboard = () => {
 }
 
 export default StudentDashboard
-

@@ -10,7 +10,11 @@ import useServiceStatus from "../hooks/useServiceStatus";
 const CartSection = () => {
   const { loadRazorpayScript } = useContext(RazorpayContext);
   const { serviceStatus } = useServiceStatus();
-  const { priceSettings, loading: pricingLoading, error: pricingError } = usePricing();
+  const {
+    priceSettings,
+    loading: pricingLoading,
+    error: pricingError,
+  } = usePricing();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -56,7 +60,7 @@ const CartSection = () => {
         key: "rzp_test_1DP5mmOlF5G5ag",
         amount: (totalAmount * 100).toFixed(0), // Convert to paise
         currency: "INR",
-        name: "PrintEase",
+        name: "PrintHub",
         description: "Print Job Payment",
         order_id: orderData.orderId,
         handler: async function (response) {
@@ -109,7 +113,9 @@ const CartSection = () => {
   if (pricingLoading) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Shopping Cart</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+          Shopping Cart
+        </h2>
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mr-3"></div>
           <span className="text-gray-300">Loading pricing information...</span>
@@ -122,10 +128,14 @@ const CartSection = () => {
   if (pricingError) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Shopping Cart</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+          Shopping Cart
+        </h2>
         <div className="bg-red-900 border border-red-600 text-red-200 px-4 py-3 rounded">
           <p>Error loading pricing information: {pricingError}</p>
-          <p className="text-sm mt-2">Please refresh the page or contact support.</p>
+          <p className="text-sm mt-2">
+            Please refresh the page or contact support.
+          </p>
         </div>
       </div>
     );
@@ -134,12 +144,12 @@ const CartSection = () => {
   if (cartRedux.length === 0) {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Shopping Cart</h2>
+        <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+          Shopping Cart
+        </h2>
         <div className="text-center py-8">
           <div className="text-gray-400 text-lg mb-4">Your cart is empty</div>
-          <p className="text-gray-500">
-            Add some print jobs to get started!
-          </p>
+          <p className="text-gray-500">Add some print jobs to get started!</p>
         </div>
       </div>
     );
@@ -152,8 +162,10 @@ const CartSection = () => {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Shopping Cart</h2>
-      
+      <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+        Shopping Cart
+      </h2>
+
       {error && (
         <div className="bg-red-900 border border-red-600 text-red-200 px-4 py-3 rounded mb-6">
           {error}
@@ -167,7 +179,9 @@ const CartSection = () => {
             className="bg-gray-700 rounded-lg p-4 flex justify-between items-center"
           >
             <div className="flex-1">
-              <h3 className="font-semibold text-gray-100">{item.originalFilename || item.file}</h3>
+              <h3 className="font-semibold text-gray-100">
+                {item.originalFilename || item.file}
+              </h3>
               <div className="text-sm text-gray-300 mt-1">
                 <div>Pages: {item.pages}</div>
                 <div>Copies: {item.copies}</div>
@@ -201,16 +215,18 @@ const CartSection = () => {
 
       {/* Order Summary */}
       <div className="bg-gray-700 rounded-lg p-4 mb-6">
-        <h3 className="text-lg font-semibold text-gray-100 mb-4">Order Summary</h3>
+        <h3 className="text-lg font-semibold text-gray-100 mb-4">
+          Order Summary
+        </h3>
         <div className="space-y-2">
           <div className="flex justify-between">
-            <span className="text-gray-300">
-              Items ({cartRedux.length})
-            </span>
+            <span className="text-gray-300">Items ({cartRedux.length})</span>
             <span>₹{subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-300">GST ({priceSettings.gstPercentage}%)</span>
+            <span className="text-gray-300">
+              GST ({priceSettings.gstPercentage}%)
+            </span>
             <span>₹{gstAmount.toFixed(2)}</span>
           </div>
           <div className="border-t border-gray-600 my-4"></div>

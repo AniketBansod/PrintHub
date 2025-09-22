@@ -1,17 +1,17 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { 
-  Shield, 
-  User, 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  ArrowLeft, 
+import {
+  Shield,
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowLeft,
   CheckCircle,
   AlertCircle,
-  Key
+  Key,
 } from "lucide-react";
 import { useNotification } from "../context/NotificationContext";
 
@@ -22,13 +22,13 @@ const AdminRegisterPage = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    adminKey: ""
+    adminKey: "",
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  
+
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
@@ -65,26 +65,29 @@ const AdminRegisterPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
 
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/auth/admin-register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          adminKey: formData.adminKey,
-          role: "admin"
-        }),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/auth/admin-register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            adminKey: formData.adminKey,
+            role: "admin",
+          }),
+        }
+      );
 
       const data = await response.json();
 
@@ -123,22 +126,36 @@ const AdminRegisterPage = () => {
           <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-full mb-4">
             <Shield className="h-8 w-8 text-gray-900" />
           </div>
-          <h1 className="text-3xl font-bold text-amber-400 mb-2">Admin Registration</h1>
+          <h1 className="text-3xl font-bold text-amber-400 mb-2">
+            Admin Registration
+          </h1>
           <p className="text-gray-300">Create your admin account</p>
         </div>
 
         {/* Progress Steps */}
         <div className="flex items-center justify-center mb-8">
           <div className="flex items-center space-x-4">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              step >= 1 ? 'bg-amber-500 text-gray-900' : 'bg-gray-600 text-gray-300'
-            }`}>
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                step >= 1
+                  ? "bg-amber-500 text-gray-900"
+                  : "bg-gray-600 text-gray-300"
+              }`}
+            >
               1
             </div>
-            <div className={`w-16 h-1 ${step >= 2 ? 'bg-amber-500' : 'bg-gray-600'}`}></div>
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              step >= 2 ? 'bg-amber-500 text-gray-900' : 'bg-gray-600 text-gray-300'
-            }`}>
+            <div
+              className={`w-16 h-1 ${
+                step >= 2 ? "bg-amber-500" : "bg-gray-600"
+              }`}
+            ></div>
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                step >= 2
+                  ? "bg-amber-500 text-gray-900"
+                  : "bg-gray-600 text-gray-300"
+              }`}
+            >
               2
             </div>
           </div>
@@ -155,14 +172,18 @@ const AdminRegisterPage = () => {
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 className={`w-full pl-10 pr-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 ${
-                  errors.name ? 'border-red-500' : 'border-gray-600'
+                  errors.name ? "border-red-500" : "border-gray-600"
                 }`}
                 placeholder="Enter your full name"
               />
             </div>
-            {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-400">{errors.name}</p>
+            )}
           </div>
 
           <div>
@@ -174,14 +195,18 @@ const AdminRegisterPage = () => {
               <input
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, email: e.target.value })
+                }
                 className={`w-full pl-10 pr-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 ${
-                  errors.email ? 'border-red-500' : 'border-gray-600'
+                  errors.email ? "border-red-500" : "border-gray-600"
                 }`}
-                placeholder="admin@printease.com"
+                placeholder="admin@PrintHub.com"
               />
             </div>
-            {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-400">{errors.email}</p>
+            )}
           </div>
 
           <div>
@@ -193,9 +218,11 @@ const AdminRegisterPage = () => {
               <input
                 type={showPassword ? "text" : "password"}
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, password: e.target.value })
+                }
                 className={`w-full pl-10 pr-12 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 ${
-                  errors.password ? 'border-red-500' : 'border-gray-600'
+                  errors.password ? "border-red-500" : "border-gray-600"
                 }`}
                 placeholder="Create a strong password"
               />
@@ -204,10 +231,16 @@ const AdminRegisterPage = () => {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
               >
-                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
               </button>
             </div>
-            {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password}</p>}
+            {errors.password && (
+              <p className="mt-1 text-sm text-red-400">{errors.password}</p>
+            )}
           </div>
 
           <div>
@@ -219,9 +252,11 @@ const AdminRegisterPage = () => {
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, confirmPassword: e.target.value })
+                }
                 className={`w-full pl-10 pr-12 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 ${
-                  errors.confirmPassword ? 'border-red-500' : 'border-gray-600'
+                  errors.confirmPassword ? "border-red-500" : "border-gray-600"
                 }`}
                 placeholder="Confirm your password"
               />
@@ -230,10 +265,18 @@ const AdminRegisterPage = () => {
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
               >
-                {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                {showConfirmPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
               </button>
             </div>
-            {errors.confirmPassword && <p className="mt-1 text-sm text-red-400">{errors.confirmPassword}</p>}
+            {errors.confirmPassword && (
+              <p className="mt-1 text-sm text-red-400">
+                {errors.confirmPassword}
+              </p>
+            )}
           </div>
 
           <div>
@@ -245,16 +288,21 @@ const AdminRegisterPage = () => {
               <input
                 type="password"
                 value={formData.adminKey}
-                onChange={(e) => setFormData({ ...formData, adminKey: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, adminKey: e.target.value })
+                }
                 className={`w-full pl-10 pr-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 ${
-                  errors.adminKey ? 'border-red-500' : 'border-gray-600'
+                  errors.adminKey ? "border-red-500" : "border-gray-600"
                 }`}
                 placeholder="Enter admin key"
               />
             </div>
-            {errors.adminKey && <p className="mt-1 text-sm text-red-400">{errors.adminKey}</p>}
+            {errors.adminKey && (
+              <p className="mt-1 text-sm text-red-400">{errors.adminKey}</p>
+            )}
             <p className="mt-1 text-xs text-gray-400">
-              Contact system administrator for the admin key. The admin key is configured in environment variables for security.
+              Contact system administrator for the admin key. The admin key is
+              configured in environment variables for security.
             </p>
           </div>
 
@@ -296,7 +344,8 @@ const AdminRegisterPage = () => {
         {/* Security Notice */}
         <div className="mt-6 text-center">
           <p className="text-gray-400 text-xs">
-            🔒 Admin accounts require special authorization and are monitored for security.
+            🔒 Admin accounts require special authorization and are monitored
+            for security.
           </p>
         </div>
       </motion.div>

@@ -193,18 +193,18 @@ const sendOTPEmail = async (email, otp) => {
     const mailOptions = {
       from: `"PrintHub" <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: 'Email Verification - PrintEase',
+      subject: 'Email Verification - PrintHub',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <div style="background: linear-gradient(135deg, #F59E0B, #D97706); padding: 20px; text-align: center;">
-            <h1 style="color: white; margin: 0;">PrintEase</h1>
+            <h1 style="color: white; margin: 0;">PrintHub</h1>
             <p style="color: white; margin: 5px 0 0 0;">Campus Printing Hub</p>
           </div>
           
           <div style="padding: 30px; background-color: #f9f9f9;">
             <h2 style="color: #333; margin-bottom: 20px;">Email Verification</h2>
             <p style="color: #666; line-height: 1.6;">
-              Thank you for signing up with PrintEase! To complete your registration, please verify your email address using the OTP below:
+              Thank you for signing up with PrintHub! To complete your registration, please verify your email address using the OTP below:
             </p>
             
             <div style="background-color: white; border: 2px solid #F59E0B; border-radius: 10px; padding: 20px; text-align: center; margin: 20px 0;">

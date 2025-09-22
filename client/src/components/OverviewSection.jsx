@@ -1,73 +1,202 @@
-import React from 'react';
-import  { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Users, Settings, BarChart, LogOut, ToggleLeft, ToggleRight } from "lucide-react"
-import { useNavigate } from "react-router-dom"
-const OverviewSection = () => (
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Clock, AlertTriangle } from "lucide-react";
+
+// 1. New Shimmer Component
+const OverviewShimmer = () => (
   <div>
-    <h2 className="text-2xl font-semibold mb-4">System Overview</h2>
+    {/* Shimmer for the Title */}
+    <div className="h-8 w-1/3 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse mb-4"></div>
+
+    {/* Shimmer for the Stat Cards */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-      <StatCard title="Total Users" value="1,234" />
-      <StatCard title="Active Printers" value="15" />
-      <StatCard title="Print Jobs Today" value="89" />
-      <StatCard title="Revenue This Month" value="5,678 credits" />
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+      ))}
     </div>
+
+    {/* Shimmer for the Lower Cards */}
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <QueuePredictionCard />
-      <UrgentRequestsCard />
+      <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
+      <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
     </div>
   </div>
 );
+
+
+const OverviewSection = () => {
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    pendingRequests: 0,
+    totalRevenue: 0,
+    totalPrintJobsToday: 0,
+    totalRevenueThisMonth: 0,
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchOverview = async () => {
+      try {
+        // Simulating a slightly longer fetch to demonstrate the shimmer
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        const response = await fetch(
+          "http://localhost:5000/api/admin/overview",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message);
+
+        setStats(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOverview();
+
+    const interval = setInterval(fetchOverview, 15000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // 2. Updated loading check to render the new Shimmer component
+  if (loading) return <OverviewShimmer />;
+  
+  if (error) return <p className="text-red-500">Error: {error}</p>;
+
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">System Overview</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <StatCard title="Total Users" value={stats.totalUsers} />
+        <StatCard title="Pending Requests" value={stats.pendingRequests} />
+        <StatCard title="Print Jobs Today" value={stats.totalPrintJobsToday} />
+        <StatCard
+          title="Revenue This Month"
+          value={`₹${stats.totalRevenueThisMonth.toFixed(2)}`}
+        />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <QueuePredictionCard />
+        <UrgentRequestsCard />
+      </div>
+    </div>
+  );
+};
 
 const StatCard = ({ title, value }) => (
-  <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
-    <h3 className="text-gray-400 text-sm">{title}</h3>
-    <p className="text-2xl font-bold text-amber-400">{value}</p>
+  <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+    <h3 className="text-gray-500 dark:text-gray-400 text-sm">{title}</h3>
+    <p className="text-2xl font-bold text-amber-500 dark:text-amber-400">{value}</p>
   </div>
 );
 
-const QueuePredictionCard = () => (
-  <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-    <h3 className="text-xl font-semibold mb-4">Queue Prediction</h3>
-    <p className="text-gray-300 mb-2">Predicted peak times:</p>
-    <ul className="list-disc list-inside text-amber-400">
-      <li>Today: 2:00 PM - 4:00 PM</li>
-      <li>Tomorrow: 10:00 AM - 12:00 PM</li>
-    </ul>
-    <p className="text-gray-300 mt-4">Suggested actions:</p>
-    <ul className="list-disc list-inside text-green-400">
-      <li>Increase staff during peak hours</li>
-      <li>Encourage off-peak printing</li>
-    </ul>
-  </div>
-);
+const QueuePredictionCard = () => {
+  const [slots, setSlots] = useState({});
+  const [loading, setLoading] = useState(true);
 
-const UrgentRequestsCard = () => (
-  <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-    <h3 className="text-xl font-semibold mb-4">Urgent Requests</h3>
-    <ul className="space-y-2">
-      <li className="flex items-center justify-between bg-red-800 p-3 rounded-md">
-        <span>Faculty Handouts - Due in 30 minutes</span>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="bg-amber-500 text-gray-900 px-3 py-1 rounded-md hover:bg-amber-400"
-        >
-          Prioritize
-        </motion.button>
-      </li>
-      <li className="flex items-center justify-between bg-red-800 p-3 rounded-md">
-        <span>Exam Papers - Due in 1 hour</span>
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="bg-amber-500 text-gray-900 px-3 py-1 rounded-md hover:bg-amber-400"
-        >
-          Prioritize
-        </motion.button>
-      </li>
-    </ul>
-  </div>
-);
+  useEffect(() => {
+    fetch("http://localhost:5000/api/admin/queue-prediction", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setSlots(data))
+      .catch(() => setSlots({}))
+      .finally(() => setLoading(false));
+  }, []);
 
-export default OverviewSection; 
+  if (loading)
+    return <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>;
+
+  return (
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+      <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center">
+        <Clock className="mr-2 h-5 w-5 text-blue-500" />
+        Queue Prediction
+      </h3>
+      {Object.keys(slots).length === 0 ? (
+        <p className="text-gray-500 dark:text-gray-400">No busy slots detected</p>
+      ) : (
+        Object.entries(slots).map(([day, times]) => (
+          <div key={day} className="mb-3">
+            <p className="font-semibold text-gray-700 dark:text-gray-300 mb-2">{day}</p>
+            <ul className="list-disc list-inside text-amber-600 dark:text-amber-400 space-y-1">
+              {Object.entries(times).map(([slot, count]) => (
+                <li key={slot}>
+                  <span className="text-gray-700 dark:text-gray-300">{slot} → {count} jobs</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      )}
+    </div>
+  );
+};
+
+const UrgentRequestsCard = () => {
+  const [urgent, setUrgent] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/admin/urgent-requests", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
+      .then((res) => res.json())
+      .then((data) => setUrgent(data))
+      .catch(() => setUrgent([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading)
+    return <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>;
+
+  return (
+    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+      <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center">
+        <AlertTriangle className="mr-2 h-5 w-5 text-red-500" />
+        Urgent Requests
+      </h3>
+      {urgent.length === 0 ? (
+        <p className="text-gray-500 dark:text-gray-400">No urgent requests</p>
+      ) : (
+        <ul className="space-y-2">
+          {urgent.map((order) => (
+            <li
+              key={order._id}
+              className="flex items-center justify-between bg-red-100 dark:bg-red-900/50 p-3 rounded-md text-red-800 dark:text-red-200"
+            >
+              <span>
+                {order.items[0]?.originalFilename ||
+                  (order.items[0]?.file
+                    ? order.items[0].file.split("/").pop()
+                    : "Untitled File")}
+                {" - Due "}
+                {order.items[0]?.pickupTime
+                  ? new Date(order.items[0].pickupTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  : "N/A"}
+              </span>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-amber-500 text-gray-900 px-3 py-1 rounded-md hover:bg-amber-400"
+              >
+                Prioritize
+              </motion.button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+export default OverviewSection;

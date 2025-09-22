@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const PrintJobSchema = new mongoose.Schema({
   printId: { type: String, required: true, unique: true },
-  file: { type: String, required: true }, // Cloudinary URL
-  originalFilename: { type: String, required: true }, // Original filename with extension
+  file: { type: String, required: true },
+  originalFilename: { type: String, required: true },
   copies: { type: Number, required: true },
   size: { type: String, required: true },
   color: { type: String, required: true },
@@ -11,11 +11,7 @@ const PrintJobSchema = new mongoose.Schema({
   pages: { type: String, required: true },
   schedule: { type: String, required: true },
   estimatedPrice: { type: Number, required: true },
-  orderId: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'Order', 
-    // required: true 
-  }
-});
+  orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' }
+}, { timestamps: true });   // ✅ added
 
 module.exports = mongoose.model('PrintJob', PrintJobSchema);

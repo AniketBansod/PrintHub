@@ -3,15 +3,58 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const OTP = require("../models/OTP");
+const passport = require("passport");
+const session = require("express-session");
 const router = express.Router();
 const authMiddleware = require("../middleware/auth");
 const { sendOTPEmail } = require("../services/emailService");
+// --- Passport Configuration ---
+// (This will be in a separate file in the next step, but let's define it here for now)
+
+// --- 1. REQUIRE the passport configuration we just created ---
+require("../config/passport-setup");
+
+// --- 2. Initialize Passport and Session Middleware ---
+// This MUST come before any routes that use Passport.
+router.use(session({
+  secret: process.env.SESSION_SECRET || 'a-very-secret-key-for-oauth',
+  resave: false,
+  saveUninitialized: false,
+}));
+router.use(passport.initialize());
+router.use(passport.session());
+
+
+// --- 3. Google OAuth Routes ---
+// These routes will now use the configuration from passport-setup.js
+
+router.get('/google', passport.authenticate('google', {
+  scope: ['profile', 'email']
+}));
+
+router.get('/google/callback', 
+  passport.authenticate('google', {
+    failureRedirect: 'http://localhost:5173/login?error=google_auth_failed',
+    session: false 
+  }),
+  (req, res) => {
+    // Authentication successful. `req.user` is now available.
+    const token = jwt.sign(
+      { id: req.user._id, role: req.user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+    res.redirect(`http://localhost:5173/auth/success?token=${token}`);
+  }
+);
+
 
 // Generate random OTP
 const generateOTP = () => {
   return Math.floor(100000 + Math.random() * 900000).toString();
 };
 
+// ... existing routes ...
 // Send OTP for email verification
 router.post("/send-otp", async (req, res) => {
   try {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { DollarSign, Calculator, Save, AlertCircle } from 'lucide-react';
+import { DollarSign, Calculator, Save, AlertCircle, CheckCircle } from 'lucide-react';
 
 const PricingSettingsSection = () => {
   const [pricing, setPricing] = useState({
@@ -112,11 +112,12 @@ const PricingSettingsSection = () => {
 
   if (loading) {
     return (
-      <div className="bg-gray-800 rounded-lg shadow-md p-6">
+      // 1. Updated loading skeleton to be theme-aware
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
         <div className="animate-pulse">
-          <div className="h-6 bg-gray-700 rounded mb-4"></div>
-          <div className="h-4 bg-gray-700 rounded mb-2"></div>
-          <div className="h-4 bg-gray-700 rounded"></div>
+          <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
+          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded"></div>
         </div>
       </div>
     );
@@ -125,18 +126,19 @@ const PricingSettingsSection = () => {
   const samplePrice = calculateSamplePrice();
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-md p-6">
+    // 2. Updated main container to be theme-aware
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700">
       <div className="flex items-center mb-6">
-        <DollarSign className="h-6 w-6 text-amber-400 mr-3" />
-        <h2 className="text-2xl font-bold text-gray-100">Pricing Settings</h2>
+        <DollarSign className="h-6 w-6 text-amber-500 mr-3" />
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Pricing Settings</h2>
       </div>
 
-      {/* Status Messages */}
+      {/* 3. Updated status messages to be theme-aware */}
       {error && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-red-900 border border-red-600 text-red-200 px-4 py-3 rounded mb-6"
+          className="bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-600 text-red-800 dark:text-red-200 px-4 py-3 rounded mb-6"
         >
           <div className="flex items-center">
             <AlertCircle className="h-5 w-5 mr-2" />
@@ -149,133 +151,114 @@ const PricingSettingsSection = () => {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-green-900 border border-green-600 text-green-200 px-4 py-3 rounded mb-6"
+          className="bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-600 text-green-800 dark:text-green-200 px-4 py-3 rounded mb-6"
         >
-          {success}
+          <div className="flex items-center">
+            <CheckCircle className="h-5 w-5 mr-2" />
+            {success}
+          </div>
         </motion.div>
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Pricing Configuration */}
         <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-gray-300 mb-4">Base Pricing</h3>
+          {/* 4. Updated sub-heading and label colors */}
+          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Base Pricing</h3>
           
-          {/* Black & White Price */}
           <div>
-            <label htmlFor="blackWhite" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="blackWhite" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
               Price Per Page (Black & White) - ₹
             </label>
+            {/* 5. Updated input field styles */}
             <input
-              type="number"
-              id="blackWhite"
-              step="0.1"
-              min="0.1"
-              max="10.0"
+              type="number" id="blackWhite" step="0.1" min="0.1" max="10.0"
               value={pricing.blackWhite}
               onChange={(e) => handleInputChange('blackWhite', parseFloat(e.target.value))}
-              className="w-full p-3 bg-gray-700 border border-gray-600 text-gray-100 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             />
           </div>
 
-          {/* Color Price */}
           <div>
-            <label htmlFor="color" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="color" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
               Price Per Page (Color) - ₹
             </label>
             <input
-              type="number"
-              id="color"
-              step="0.1"
-              min="0.1"
-              max="20.0"
+              type="number" id="color" step="0.1" min="0.1" max="20.0"
               value={pricing.color}
               onChange={(e) => handleInputChange('color', parseFloat(e.target.value))}
-              className="w-full p-3 bg-gray-700 border border-gray-600 text-gray-100 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             />
           </div>
 
-          {/* Double-sided Additional Cost */}
           <div>
-            <label htmlFor="doubleSided" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="doubleSided" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
               Additional Cost for Double-sided - ₹
             </label>
             <input
-              type="number"
-              id="doubleSided"
-              step="0.1"
-              min="0"
-              max="5.0"
+              type="number" id="doubleSided" step="0.1" min="0" max="5.0"
               value={pricing.doubleSided}
               onChange={(e) => handleInputChange('doubleSided', parseFloat(e.target.value))}
-              className="w-full p-3 bg-gray-700 border border-gray-600 text-gray-100 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             />
           </div>
 
-          {/* GST Percentage */}
           <div>
-            <label htmlFor="gstPercentage" className="block text-sm font-medium text-gray-300 mb-2">
+            <label htmlFor="gstPercentage" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
               GST Percentage - %
             </label>
             <input
-              type="number"
-              id="gstPercentage"
-              step="0.1"
-              min="0"
-              max="30"
+              type="number" id="gstPercentage" step="0.1" min="0" max="30"
               value={pricing.gstPercentage}
               onChange={(e) => handleInputChange('gstPercentage', parseFloat(e.target.value))}
-              className="w-full p-3 bg-gray-700 border border-gray-600 text-gray-100 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+              className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
             />
           </div>
         </div>
 
         {/* Paper Size Multipliers */}
         <div className="space-y-6">
-          <h3 className="text-lg font-semibold text-gray-300 mb-4">Paper Size Multipliers</h3>
+          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">Paper Size Multipliers</h3>
           
           {Object.entries(pricing.paperSizeMultipliers).map(([size, multiplier]) => (
             <div key={size}>
-              <label htmlFor={size} className="block text-sm font-medium text-gray-300 mb-2">
+              <label htmlFor={size} className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">
                 {size} Size Multiplier
               </label>
               <input
-                type="number"
-                id={size}
-                step="0.1"
-                min="0.1"
-                max="3.0"
+                type="number" id={size} step="0.1" min="0.1" max="3.0"
                 value={multiplier}
                 onChange={(e) => handlePaperSizeChange(size, e.target.value)}
-                className="w-full p-3 bg-gray-700 border border-gray-600 text-gray-100 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-md focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
               />
             </div>
           ))}
         </div>
       </div>
 
-      {/* Price Preview */}
-      <div className="mt-8 p-4 bg-blue-900 border border-blue-600 rounded-lg">
-        <h3 className="text-lg font-semibold text-blue-200 mb-3 flex items-center">
+      {/* 6. Updated Price Preview to be theme-aware */}
+      <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-800 rounded-lg">
+        <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-3 flex items-center">
           <Calculator className="h-5 w-5 mr-2" />
           Price Preview (10 pages, A4, Black & White)
         </h3>
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
-            <span className="text-blue-300">Subtotal:</span>
-            <div className="text-blue-100 font-semibold">₹{samplePrice.subtotal}</div>
+            <span className="text-blue-600 dark:text-blue-300">Subtotal:</span>
+            <div className="text-blue-900 dark:text-blue-100 font-semibold">₹{samplePrice.subtotal}</div>
           </div>
           <div>
-            <span className="text-blue-300">GST ({pricing.gstPercentage}%):</span>
-            <div className="text-blue-100 font-semibold">₹{samplePrice.gstAmount}</div>
+            <span className="text-blue-600 dark:text-blue-300">GST ({pricing.gstPercentage}%):</span>
+            <div className="text-blue-900 dark:text-blue-100 font-semibold">₹{samplePrice.gstAmount}</div>
           </div>
           <div>
-            <span className="text-blue-300">Total:</span>
-            <div className="text-blue-100 font-semibold text-lg">₹{samplePrice.total}</div>
+            <span className="text-blue-600 dark:text-blue-300">Total:</span>
+            <div className="text-blue-900 dark:text-blue-100 font-semibold text-lg">₹{samplePrice.total}</div>
           </div>
         </div>
       </div>
 
-      {/* Save Button */}
+      {/* 7. Updated button disabled state to be theme-aware */}
       <motion.button
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
@@ -283,13 +266,13 @@ const PricingSettingsSection = () => {
         disabled={saving}
         className={`w-full mt-6 py-3 px-4 rounded-md font-semibold transition duration-300 flex items-center justify-center ${
           saving
-            ? 'bg-gray-600 cursor-not-allowed text-gray-400'
+            ? 'bg-gray-300 dark:bg-gray-600 cursor-not-allowed text-gray-500 dark:text-gray-400'
             : 'bg-amber-500 hover:bg-amber-600 text-gray-900'
         }`}
       >
         {saving ? (
           <>
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-900 mr-2"></div>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
             Saving...
           </>
         ) : (
