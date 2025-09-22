@@ -11,7 +11,7 @@ import UpcomingPrintsCard from "../components/UpcomingPrintsCard.jsx";
 import RecentActivityCard from "../components/RecentActivityCard.jsx";
 import PrintQuotaCard from "../components/PrintQuotaCard.jsx";
 import NewPrintSection from "../components/NewPrintSection.jsx";
-import Chatbot from '../components/Chatbot';
+
 import ServiceStatusBanner from '../components/ServiceStatusBanner';
 import ThemeToggle from '../components/ThemeToggle';
 import ProfileSection from "../components/ProfileSection.jsx";
@@ -134,7 +134,6 @@ const StudentDashboard = () => {
         {activeTab === "settings" && <SettingsSection />}
       </main>
       
-      <Chatbot />
     </div>
   );
 };

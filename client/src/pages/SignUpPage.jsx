@@ -3,10 +3,11 @@ import { motion } from "framer-motion";
 import { User, Mail, Lock, Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useNotification } from "../context/NotificationContext";
+import { useTheme } from "../context/ThemeContext"; // use the same theme hook you've been using
 
 // A simple inline SVG for the Google G logo
 const GoogleIcon = () => (
-  <svg className="h-5 w-5 mr-3" viewBox="0 0 48 48">
+  <svg className="h-5 w-5 mr-3" viewBox="0 0 48 48" aria-hidden>
     <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C12.955 4 4 12.955 4 24s8.955 20 20 20s20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"></path>
     <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4C16.318 4 9.656 8.337 6.306 14.691z"></path>
     <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-6.627 0-12-5.373-12-12h-8c0 11.045 8.955 20 20 20z"></path>
@@ -15,13 +16,14 @@ const GoogleIcon = () => (
 );
 
 const SignUpPage = () => {
+  const { theme } = useTheme();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: "student"
+    role: "student",
   });
   const [otp, setOtp] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +31,7 @@ const SignUpPage = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [otpAttempts, setOtpAttempts] = useState(3);
-  
+
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
 
@@ -146,100 +148,136 @@ const SignUpPage = () => {
     }
   };
 
+  // Theme-based classes (same approach as your other pages)
+  const bgClass = theme === "dark" ? "bg-gray-900" : "bg-gray-100";
+  const cardBg = theme === "dark" ? "bg-gray-800" : "bg-white";
+  const textColor = theme === "dark" ? "text-gray-200" : "text-gray-900";
+  const placeholderColor = theme === "dark" ? "placeholder-gray-500" : "placeholder-gray-400";
+  const borderColor = theme === "dark" ? "border-gray-700" : "border-gray-300";
+
   return (
-    <div className="min-h-screen bg-gray-900 flex justify-center items-center p-4 relative">
-        <div className="absolute top-4 left-4 sm:top-8 sm:left-8">
-            <Link to="/" className="flex items-center text-gray-300 hover:text-white transition-colors duration-200">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Home
-            </Link>
-        </div>
-      
+    <div className={`min-h-screen ${bgClass} flex justify-center items-center p-4 relative`}>
+      {/* Back */}
+      <div className="absolute top-4 left-4 sm:top-8 sm:left-8">
+        <Link to="/" className={`flex items-center ${textColor} hover:text-amber-500 transition-colors duration-200`}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Home
+        </Link>
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-gray-800 p-6 sm:p-8 rounded-lg shadow-2xl w-full max-w-md"
+        className={`${cardBg} p-6 sm:p-8 rounded-lg shadow-2xl w-full max-w-md`}
       >
         <div className="text-center mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-amber-400 mb-2">Create Account</h1>
-          <p className="text-gray-400 text-sm">
+          <p className={`${textColor} text-sm`}>
             {step === 1 && "Enter your details to get started"}
             {step === 2 && `Enter the 6-digit code sent to ${formData.email}`}
             {step === 3 && "Finalizing your account"}
           </p>
         </div>
-        
+
+        {/* STEP 1: send OTP */}
         {step === 1 && (
           <form onSubmit={handleSendOTP} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
+              <label className={`block text-sm font-medium mb-2 ${textColor}`}>Full Name</label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input type="text" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className={`w-full pl-10 pr-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 ${ errors.name ? 'border-red-500' : 'border-gray-600' }`}
-                  placeholder="Enter your full name" />
+                <User className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 ${placeholderColor}`} />
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className={`w-full pl-10 pr-4 py-3 ${cardBg} border ${errors.name ? "border-red-500" : borderColor} rounded-lg ${textColor} ${placeholderColor} focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200`}
+                  placeholder="Enter your full name"
+                />
               </div>
               {errors.name && <p className="mt-1 text-sm text-red-400">{errors.name}</p>}
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+              <label className={`block text-sm font-medium mb-2 ${textColor}`}>Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className={`w-full pl-10 pr-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 ${ errors.email ? 'border-red-500' : 'border-gray-600' }`}
-                  placeholder="Enter your email" />
+                <Mail className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 ${placeholderColor}`} />
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className={`w-full pl-10 pr-4 py-3 ${cardBg} border ${errors.email ? "border-red-500" : borderColor} rounded-lg ${textColor} ${placeholderColor} focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200`}
+                  placeholder="Enter your email"
+                />
               </div>
               {errors.email && <p className="mt-1 text-sm text-red-400">{errors.email}</p>}
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Password</label>
+              <label className={`block text-sm font-medium mb-2 ${textColor}`}>Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input type={showPassword ? "text" : "password"} value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className={`w-full pl-10 pr-12 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 ${ errors.password ? 'border-red-500' : 'border-gray-600' }`}
-                  placeholder="Create a password" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300">
+                <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 ${placeholderColor}`} />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className={`w-full pl-10 pr-12 py-3 ${cardBg} border ${errors.password ? "border-red-500" : borderColor} rounded-lg ${textColor} ${placeholderColor} focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200`}
+                  placeholder="Create a password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${placeholderColor} hover:text-gray-400`}
+                >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
               {errors.password && <p className="mt-1 text-sm text-red-400">{errors.password}</p>}
             </div>
+
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Confirm Password</label>
+              <label className={`block text-sm font-medium mb-2 ${textColor}`}>Confirm Password</label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input type={showConfirmPassword ? "text" : "password"} value={formData.confirmPassword} onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className={`w-full pl-10 pr-12 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200 ${ errors.confirmPassword ? 'border-red-500' : 'border-gray-600' }`}
-                  placeholder="Confirm your password" />
-                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300">
+                <Lock className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 ${placeholderColor}`} />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  className={`w-full pl-10 pr-12 py-3 ${cardBg} border ${errors.confirmPassword ? "border-red-500" : borderColor} rounded-lg ${textColor} ${placeholderColor} focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200`}
+                  placeholder="Confirm your password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${placeholderColor} hover:text-gray-400`}
+                >
                   {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
               {errors.confirmPassword && <p className="mt-1 text-sm text-red-400">{errors.confirmPassword}</p>}
             </div>
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
               disabled={loading}
               className={`w-full py-3 px-4 rounded-lg font-semibold transition duration-300 ${
-                loading
-                  ? "bg-gray-600 cursor-not-allowed text-gray-400"
-                  : "bg-amber-500 hover:bg-amber-400 text-gray-900"
+                loading ? `bg-gray-600 cursor-not-allowed ${textColor}` : "bg-amber-500 hover:bg-amber-400 text-gray-900"
               }`}
             >
               {loading ? "Sending OTP..." : "Send Verification Code"}
             </motion.button>
-            
+
             <div className="relative flex py-2 items-center">
-              <div className="flex-grow border-t border-gray-600"></div>
-              <span className="flex-shrink mx-4 text-gray-400 text-sm">OR</span>
-              <div className="flex-grow border-t border-gray-600"></div>
+              <div className={`flex-grow border-t ${borderColor}`}></div>
+              <span className={`flex-shrink mx-4 ${textColor} text-sm`}>OR</span>
+              <div className={`flex-grow border-t ${borderColor}`}></div>
             </div>
+
             <a
               href="http://localhost:5000/api/auth/google"
-              className="w-full flex items-center justify-center py-3 px-4 rounded-lg font-semibold transition duration-300 bg-gray-700 hover:bg-gray-600 text-white"
+              className={`w-full flex items-center justify-center py-3 px-4 rounded-lg font-semibold transition duration-300 ${cardBg} hover:opacity-90 ${textColor}`}
             >
               <GoogleIcon />
               Sign up with Google
@@ -247,20 +285,82 @@ const SignUpPage = () => {
           </form>
         )}
 
-        {step === 2 && ( 
-            <form onSubmit={handleVerifyOTP} className="space-y-4">
-                {/* OTP Form remains unchanged, already looks good on mobile */}
-            </form>
-        )}
-
-        {step === 3 && ( 
-            <div className="text-center space-y-4">
-                {/* Completion step remains unchanged, already looks good on mobile */}
+        {/* STEP 2: Verify OTP */}
+        {step === 2 && (
+          <form onSubmit={handleVerifyOTP} className="space-y-4">
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${textColor}`}>Enter OTP</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                maxLength={6}
+                className={`w-full px-4 py-3 ${cardBg} border ${borderColor} rounded-lg ${textColor} ${placeholderColor} focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200`}
+                placeholder="6-digit code"
+              />
+              <p className="mt-2 text-sm text-gray-400">
+                Attempts left: <span className="font-medium">{otpAttempts}</span>
+              </p>
             </div>
+
+            <div className="flex gap-2">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={loading}
+                className={`flex-1 py-3 px-4 rounded-lg font-semibold transition duration-300 ${
+                  loading ? `bg-gray-600 cursor-not-allowed ${textColor}` : "bg-amber-500 hover:bg-amber-400 text-gray-900"
+                }`}
+              >
+                {loading ? "Verifying..." : "Verify OTP"}
+              </motion.button>
+
+              <button
+                type="button"
+                onClick={handleResendOTP}
+                disabled={loading}
+                className={`flex-1 py-3 px-4 rounded-lg font-semibold transition duration-300 ${loading ? `bg-gray-600 ${textColor}` : `bg-gray-700 hover:bg-gray-600 ${textColor}`}`}
+              >
+                Resend OTP
+              </button>
+            </div>
+
+            <div className="flex justify-between">
+              <button type="button" onClick={() => setStep(1)} className="text-sm text-gray-400 hover:underline">
+                Edit details
+              </button>
+            </div>
+          </form>
         )}
 
+        {/* STEP 3: Complete Registration */}
+        {step === 3 && (
+          <div className="text-center space-y-4">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-500 mx-auto">
+              <CheckCircle className="h-8 w-8 text-gray-900" />
+            </div>
+            <h2 className={`text-lg font-semibold ${textColor}`}>Email verified</h2>
+            <p className={`${textColor} text-sm`}>You're almost done — complete registration to get started.</p>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleCompleteRegistration}
+              disabled={loading}
+              className={`w-full py-3 px-4 rounded-lg font-semibold transition duration-300 ${
+                loading ? `bg-gray-600 cursor-not-allowed ${textColor}` : "bg-amber-500 hover:bg-amber-400 text-gray-900"
+              }`}
+            >
+              {loading ? "Completing..." : "Complete Registration"}
+            </motion.button>
+          </div>
+        )}
+
+        {/* Footer */}
         <div className="mt-8 text-center">
-          <p className="text-gray-400 text-sm">
+          <p className={`${textColor} text-sm`}>
             Already have an account?{" "}
             <Link to="/login" className="text-amber-400 hover:text-amber-300 font-medium">
               Sign in

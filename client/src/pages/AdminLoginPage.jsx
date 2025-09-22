@@ -10,6 +10,7 @@ const AdminLoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const navigate = useNavigate();
   const { showError, showSuccess } = useNotification();
 
@@ -21,21 +22,13 @@ const AdminLoginPage = () => {
     try {
       const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed");
-      }
-
-      if (data.user.role !== "admin") {
-        throw new Error("Access denied. Admin privileges required.");
-      }
+      if (!response.ok) throw new Error(data.message || "Login failed");
+      if (data.user.role !== "admin") throw new Error("Access denied. Admin privileges required.");
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -51,9 +44,13 @@ const AdminLoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex justify-center items-center p-4 relative">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 dark:from-gray-900 dark:to-gray-800 flex justify-center items-center p-4 relative">
+      {/* Back to Home */}
       <div className="absolute top-4 left-4 sm:top-8 sm:left-8">
-        <Link to="/" className="flex items-center text-gray-300 hover:text-white transition-colors duration-200">
+        <Link
+          to="/"
+          className="flex items-center text-gray-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200"
+        >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Home
         </Link>
@@ -63,16 +60,16 @@ const AdminLoginPage = () => {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-gray-800 p-6 sm:p-8 rounded-lg shadow-2xl w-full max-w-md"
+        className="bg-white dark:bg-gray-800 p-6 sm:p-8 rounded-lg shadow-2xl w-full max-w-md"
       >
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-full mb-4">
-            <Shield className="h-8 w-8 text-gray-900" />
+            <Shield className="h-8 w-8 text-gray-900 dark:text-gray-200" />
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-amber-400 mb-2">
             Admin Portal
           </h1>
-          <p className="text-gray-300">Secure access to PrintHub management</p>
+          <p className="text-gray-700 dark:text-gray-300">Secure access to PrintHub management</p>
         </div>
 
         {error && (
@@ -90,7 +87,7 @@ const AdminLoginPage = () => {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-300 mb-2"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
               Admin Email
             </label>
@@ -99,16 +96,16 @@ const AdminLoginPage = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
               placeholder="admin@printhub.com"
               required
+              className="w-full px-4 py-3 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
             />
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-300 mb-2"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
               Password
             </label>
@@ -118,20 +115,16 @@ const AdminLoginPage = () => {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 pr-12 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
                 placeholder="Enter your password"
                 required
+                className="w-full px-4 py-3 pr-12 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300 hover:text-gray-500 dark:hover:text-gray-200 transition-colors duration-200"
               >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5" />
-                ) : (
-                  <Eye className="h-5 w-5" />
-                )}
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
           </div>
@@ -143,8 +136,8 @@ const AdminLoginPage = () => {
             disabled={loading}
             className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-300 ${
               loading
-                ? "bg-gray-600 cursor-not-allowed text-gray-400"
-                : "bg-amber-500 hover:bg-amber-400 text-gray-900 shadow-lg"
+                ? "bg-gray-400 cursor-not-allowed text-gray-200"
+                : "bg-amber-500 hover:bg-amber-400 text-gray-900 dark:text-gray-900 shadow-lg"
             }`}
           >
             {loading ? (
@@ -159,7 +152,7 @@ const AdminLoginPage = () => {
         </form>
 
         <div className="mt-8 text-center">
-          <p className="text-gray-300 text-sm">
+          <p className="text-sm text-gray-700 dark:text-gray-300">
             Need admin access?{" "}
             <Link
               to="/admin/register"
@@ -171,9 +164,8 @@ const AdminLoginPage = () => {
         </div>
 
         <div className="mt-6 text-center">
-          <p className="text-gray-400 text-xs">
-            This is a secure admin portal. All activities are logged and
-            monitored.
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            This is a secure admin portal. All activities are logged and monitored.
           </p>
         </div>
       </motion.div>
@@ -182,4 +174,3 @@ const AdminLoginPage = () => {
 };
 
 export default AdminLoginPage;
-

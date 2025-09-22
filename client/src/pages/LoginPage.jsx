@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, User, ArrowLeft, AlertCircle } from "lucide-react";
+import { useTheme } from "../context/ThemeContext"; // import theme context
 
 const GoogleIcon = () => (
   <svg className="h-5 w-5 mr-3" viewBox="0 0 48 48">
@@ -13,6 +14,7 @@ const GoogleIcon = () => (
 );
 
 const Login = () => {
+  const { theme } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -34,11 +36,8 @@ const Login = () => {
       if (!response.ok) throw new Error(data.message);
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
-      if (data.user.role === "admin") {
-        navigate("/admin/dashboard");
-      } else {
-        navigate("/student/dashboard");
-      }
+      if (data.user.role === "admin") navigate("/admin/dashboard");
+      else navigate("/student/dashboard");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -46,24 +45,31 @@ const Login = () => {
     }
   };
 
+  // Theme-based classes
+  const bgClass = theme === "dark" ? "bg-gray-900" : "bg-gray-100";
+  const cardBg = theme === "dark" ? "bg-gray-800" : "bg-white";
+  const textColor = theme === "dark" ? "text-gray-200" : "text-gray-900";
+  const placeholderColor = theme === "dark" ? "placeholder-gray-500" : "placeholder-gray-400";
+  const borderColor = theme === "dark" ? "border-gray-700" : "border-gray-300";
+
   return (
-    <div className="min-h-screen bg-gray-900 flex justify-center items-center p-4 relative">
-      {/* Top-left Back button (desktop/tablet) */}
+    <div className={`min-h-screen ${bgClass} flex justify-center items-center p-4 relative`}>
+      {/* Top-left Back button */}
       <div className="absolute top-4 left-4 sm:top-8 sm:left-8 hidden sm:block">
         <Link
           to="/"
-          className="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
+          className={`flex items-center ${textColor} hover:text-amber-500 transition-colors duration-200`}
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Home
         </Link>
       </div>
 
-      {/* Mobile Back button (fixed bottom) */}
+      {/* Mobile Back button */}
       <div className="fixed bottom-4 left-4 right-4 sm:hidden">
         <button
           onClick={() => navigate("/")}
-          className="w-full flex items-center justify-center py-3 bg-gray-800 text-gray-100 rounded-lg shadow-md hover:bg-gray-700 transition-colors duration-200"
+          className={`w-full flex items-center justify-center py-3 ${cardBg} ${textColor} rounded-lg shadow-md hover:opacity-90 transition duration-200`}
         >
           <ArrowLeft className="h-5 w-5 mr-2" />
           Back to Home
@@ -74,7 +80,7 @@ const Login = () => {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-gray-800 p-6 sm:p-8 rounded-lg shadow-2xl w-full max-w-md"
+        className={`${cardBg} p-6 sm:p-8 rounded-lg shadow-2xl w-full max-w-md`}
       >
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-full mb-4">
@@ -83,11 +89,11 @@ const Login = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-amber-400 mb-2">
             Student Portal
           </h1>
-          <p className="text-gray-300">
+          <p className={`${textColor}`}>
             Sign in to access your PrintHub account
           </p>
         </div>
-        
+
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -98,13 +104,10 @@ const Login = () => {
             <p className="text-red-300 text-sm">{error}</p>
           </motion.div>
         )}
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-300 mb-2"
-            >
+            <label className={`block text-sm font-medium mb-2 ${textColor}`} htmlFor="email">
               Student Email
             </label>
             <input
@@ -112,16 +115,14 @@ const Login = () => {
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+              className={`w-full px-4 py-3 ${cardBg} border ${borderColor} rounded-lg ${textColor} ${placeholderColor} focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200`}
               placeholder="student@printhub.com"
               required
             />
           </div>
+
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-300 mb-2"
-            >
+            <label className={`block text-sm font-medium mb-2 ${textColor}`} htmlFor="password">
               Password
             </label>
             <div className="relative">
@@ -130,23 +131,20 @@ const Login = () => {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 pr-12 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
+                className={`w-full px-4 py-3 pr-12 ${cardBg} border ${borderColor} rounded-lg ${textColor} ${placeholderColor} focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200`}
                 placeholder="Enter your password"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-300 transition-colors duration-200"
+                className={`absolute right-3 top-1/2 transform -translate-y-1/2 ${placeholderColor} hover:text-gray-400 transition-colors duration-200`}
               >
-                {showPassword ? (
-                  <EyeOff className="h-5 w-5" />
-                ) : (
-                  <Eye className="h-5 w-5" />
-                )}
+                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
               </button>
             </div>
           </div>
+
           <div className="flex justify-end">
             <button
               type="button"
@@ -156,6 +154,7 @@ const Login = () => {
               Forgot password?
             </button>
           </div>
+
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
@@ -163,13 +162,13 @@ const Login = () => {
             disabled={loading}
             className={`w-full py-3 px-4 rounded-lg font-semibold transition-all duration-300 ${
               loading
-                ? "bg-gray-600 cursor-not-allowed text-gray-400"
+                ? `bg-gray-600 cursor-not-allowed ${textColor}`
                 : "bg-amber-500 hover:bg-amber-400 text-gray-900 shadow-lg"
             }`}
           >
             {loading ? (
               <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-400 mr-2"></div>
+                <div className={`animate-spin rounded-full h-5 w-5 border-b-2 border-gray-400 mr-2`}></div>
                 Signing In...
               </div>
             ) : (
@@ -179,20 +178,21 @@ const Login = () => {
         </form>
 
         <div className="relative flex py-5 items-center">
-          <div className="flex-grow border-t border-gray-600"></div>
-          <span className="flex-shrink mx-4 text-gray-400">OR</span>
-          <div className="flex-grow border-t border-gray-600"></div>
+          <div className={`flex-grow border-t ${borderColor}`}></div>
+          <span className={`flex-shrink mx-4 ${textColor}`}>OR</span>
+          <div className={`flex-grow border-t ${borderColor}`}></div>
         </div>
+
         <a
           href="http://localhost:5000/api/auth/google"
-          className="w-full flex items-center justify-center py-3 px-4 rounded-lg font-semibold transition duration-300 bg-gray-700 hover:bg-gray-600 text-white"
+          className={`w-full flex items-center justify-center py-3 px-4 rounded-lg font-semibold transition duration-300 ${cardBg} hover:opacity-90 ${textColor}`}
         >
           <GoogleIcon />
           Sign in with Google
         </a>
 
         <div className="mt-8 text-center">
-          <p className="text-gray-300 text-sm">
+          <p className={`${textColor} text-sm`}>
             Don't have an account?{" "}
             <Link
               to="/register"
@@ -208,4 +208,3 @@ const Login = () => {
 };
 
 export default Login;
-

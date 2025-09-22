@@ -1,193 +1,376 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Settings, Save, RefreshCw, Info } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { 
+  Settings, 
+  Bell, 
+  Printer, 
+  FileText, 
+  Palette, 
+  Save, 
+  CheckCircle, 
+  AlertCircle,
+  Moon,
+  Sun,
+  RotateCcw
+} from "lucide-react";
 
 const SettingsSection = () => {
-  const [preferences, setPreferences] = useState({
-    notifications: true,
-    darkMode: false,
-    defaultCopies: 1,
-    printQuality: 'standard',
+  const [settings, setSettings] = useState({
+    emailNotifications: "all",
+    defaultPrinter: "library",
+    defaultPaperSize: "A4",
+    defaultColor: "blackWhite",
+    autoSave: true,
+    darkMode: true,
+    language: "en"
   });
 
-  const [success, setSuccess] = useState('');
-  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
+  // Load settings from localStorage on component mount
   useEffect(() => {
-    const saved = localStorage.getItem('preferences');
-    if (saved) {
-      setPreferences(JSON.parse(saved));
+    const savedSettings = localStorage.getItem('userSettings');
+    if (savedSettings) {
+      try {
+        const parsedSettings = JSON.parse(savedSettings);
+        setSettings(parsedSettings);
+        // Apply dark mode immediately
+        applyDarkMode(parsedSettings.darkMode);
+      } catch (err) {
+        console.error('Error loading settings:', err);
+      }
     }
   }, []);
 
-  const handleChange = (key, value) => {
-    setPreferences((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
-
-  const handleSave = () => {
-    try {
-      localStorage.setItem('preferences', JSON.stringify(preferences));
-      setSuccess('Preferences saved successfully');
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
-      setError('Failed to save preferences');
-      setTimeout(() => setError(''), 3000);
+  const applyDarkMode = (isDark) => {
+    const root = document.documentElement;
+    if (isDark) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
     }
   };
 
-  const handleReset = () => {
-    const defaults = {
-      notifications: true,
-      darkMode: false,
-      defaultCopies: 1,
-      printQuality: 'standard',
+  const handleSettingChange = (key, value) => {
+    const newSettings = { ...settings, [key]: value };
+    setSettings(newSettings);
+    
+    // Apply dark mode immediately when changed
+    if (key === 'darkMode') {
+      applyDarkMode(value);
+    }
+  };
+
+  const handleSaveSettings = async () => {
+    try {
+      setLoading(true);
+      setError("");
+      setSuccess("");
+
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+
+      // Save to localStorage
+      localStorage.setItem('userSettings', JSON.stringify(settings));
+
+      setSuccess("Settings saved successfully!");
+      setTimeout(() => setSuccess(""), 3000);
+    } catch (err) {
+      setError("Failed to save settings. Please try again.");
+      setTimeout(() => setError(""), 5000);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const resetToDefaults = () => {
+    const defaultSettings = {
+      emailNotifications: "all",
+      defaultPrinter: "library",
+      defaultPaperSize: "A4",
+      defaultColor: "blackWhite",
+      autoSave: true,
+      darkMode: true,
+      language: "en"
     };
-    setPreferences(defaults);
-    localStorage.setItem('preferences', JSON.stringify(defaults));
-    setSuccess('Preferences reset to defaults');
-    setTimeout(() => setSuccess(''), 3000);
+    setSettings(defaultSettings);
+    applyDarkMode(true);
+    localStorage.setItem('userSettings', JSON.stringify(defaultSettings));
+    setSuccess("Settings reset to defaults!");
+    setTimeout(() => setSuccess(""), 3000);
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6">
       {/* Header */}
-      <div className="mb-8 text-center sm:text-left">
-        <div className="flex items-center justify-center sm:justify-start mb-2">
-          <Settings className="h-7 w-7 sm:h-8 sm:w-8 text-amber-500 mr-2" />
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">
-            Settings
-          </h2>
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center">
+            <Settings className="h-8 w-8 sm:h-9 sm:w-9 text-amber-500 mr-3 flex-shrink-0" />
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100 leading-tight">Settings</h2>
+              <p className="mt-1 text-sm sm:text-base text-gray-600 dark:text-gray-400">
+                Customize your printing experience and app preferences
+              </p>
+            </div>
+          </div>
         </div>
-        <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
-          Customize your printing experience and app preferences
-        </p>
       </div>
 
-      {/* Success & Error messages */}
+      {/* Status Messages */}
       {success && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-green-100 dark:bg-green-900/50 border border-green-300 dark:border-green-600 text-green-800 dark:text-green-200 px-4 py-3 rounded mb-4 text-sm sm:text-base"
+          className="bg-green-100 dark:bg-green-900 border border-green-300 dark:border-green-600 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg mb-6"
         >
-          {success}
+          <div className="flex items-center">
+            <CheckCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+            <span className="text-sm sm:text-base">{success}</span>
+          </div>
         </motion.div>
       )}
+
       {error && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-red-100 dark:bg-red-900/50 border border-red-300 dark:border-red-600 text-red-800 dark:text-red-200 px-4 py-3 rounded mb-4 text-sm sm:text-base"
+          className="bg-red-100 dark:bg-red-900 border border-red-300 dark:border-red-600 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg mb-6"
         >
-          {error}
+          <div className="flex items-center">
+            <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
+            <span className="text-sm sm:text-base">{error}</span>
+          </div>
         </motion.div>
       )}
 
       {/* Settings Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
-        {/* Notifications */}
-        <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
-            Notifications
-          </h3>
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={preferences.notifications}
-              onChange={(e) => handleChange('notifications', e.target.checked)}
-              className="h-4 w-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
-            />
-            <span className="ml-2 text-sm sm:text-base text-gray-700 dark:text-gray-300">
-              Enable notifications for order updates
-            </span>
-          </label>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8">
+        {/* Notification Settings */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 min-w-0">
+          <div className="flex items-center mb-3">
+            <div className="p-2 bg-blue-100 dark:bg-blue-900 rounded-lg mr-3 flex-shrink-0">
+              <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Notifications</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Email Notifications
+              </label>
+              <select
+                value={settings.emailNotifications}
+                onChange={(e) => handleSettingChange('emailNotifications', e.target.value)}
+                className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
+              >
+                <option value="all">All notifications</option>
+                <option value="important">Important only</option>
+                <option value="none">None</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        {/* Dark Mode */}
-        <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
-            Theme
-          </h3>
-          <label className="flex items-center">
-            <input
-              type="checkbox"
-              checked={preferences.darkMode}
-              onChange={(e) => handleChange('darkMode', e.target.checked)}
-              className="h-4 w-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500"
-            />
-            <span className="ml-2 text-sm sm:text-base text-gray-700 dark:text-gray-300">
-              Enable dark mode
-            </span>
-          </label>
+        {/* Printer Settings */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 min-w-0">
+          <div className="flex items-center mb-3">
+            <div className="p-2 bg-green-100 dark:bg-green-900 rounded-lg mr-3 flex-shrink-0">
+              <Printer className="h-5 w-5 text-green-600 dark:text-green-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Printer</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Default Printer
+              </label>
+              <select
+                value={settings.defaultPrinter}
+                onChange={(e) => handleSettingChange('defaultPrinter', e.target.value)}
+                className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+              >
+                <option value="library">Library Printer</option>
+                <option value="studentCenter">Student Center Printer</option>
+                <option value="dorm">Dorm Printer</option>
+                <option value="lab">Computer Lab Printer</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        {/* Default Copies */}
-        <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
-            Default Copies
-          </h3>
-          <input
-            type="number"
-            min="1"
-            value={preferences.defaultCopies}
-            onChange={(e) => handleChange('defaultCopies', parseInt(e.target.value))}
-            className="w-20 p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm sm:text-base"
-          />
+        {/* Print Defaults */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 min-w-0">
+          <div className="flex items-center mb-3">
+            <div className="p-2 bg-purple-100 dark:bg-purple-900 rounded-lg mr-3 flex-shrink-0">
+              <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Print Defaults</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Default Paper Size
+              </label>
+              <select
+                value={settings.defaultPaperSize}
+                onChange={(e) => handleSettingChange('defaultPaperSize', e.target.value)}
+                className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200"
+              >
+                <option value="A4">A4 (210 × 297 mm)</option>
+                <option value="A3">A3 (297 × 420 mm)</option>
+                <option value="Letter">Letter (8.5 × 11 in)</option>
+                <option value="Legal">Legal (8.5 × 14 in)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Default Color Option
+              </label>
+              <select
+                value={settings.defaultColor}
+                onChange={(e) => handleSettingChange('defaultColor', e.target.value)}
+                className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-colors duration-200"
+              >
+                <option value="blackWhite">Black & White</option>
+                <option value="color">Color</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        {/* Print Quality */}
-        <div className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
-          <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100 mb-3">
-            Print Quality
-          </h3>
-          <select
-            value={preferences.printQuality}
-            onChange={(e) => handleChange('printQuality', e.target.value)}
-            className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-sm sm:text-base"
-          >
-            <option value="draft">Draft</option>
-            <option value="standard">Standard</option>
-            <option value="high">High Quality</option>
-          </select>
+        {/* App Preferences */}
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6 min-w-0">
+          <div className="flex items-center mb-3">
+            <div className="p-2 bg-amber-100 dark:bg-amber-900 rounded-lg mr-3 flex-shrink-0">
+              <Settings className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">App Preferences</h3>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Language
+              </label>
+              <select
+                value={settings.language}
+                onChange={(e) => handleSettingChange('language', e.target.value)}
+                className="w-full p-3 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors duration-200"
+              >
+                <option value="en">English</option>
+                <option value="hi">Hindi</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+              </select>
+            </div>
+
+            <div className="flex items-center justify-between py-2">
+              <div className="pr-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Auto-save Settings
+                </label>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Automatically save your preferences
+                </p>
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleSettingChange('autoSave', !settings.autoSave)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                  settings.autoSave ? 'bg-amber-500' : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              >
+                <motion.span
+                  animate={{ x: settings.autoSave ? 20 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="inline-block h-4 w-4 transform rounded-full bg-white shadow-lg"
+                />
+              </motion.button>
+            </div>
+
+            <div className="flex items-center justify-between py-2">
+              <div className="pr-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Dark Mode
+                </label>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Use dark theme for better experience
+                </p>
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => handleSettingChange('darkMode', !settings.darkMode)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                  settings.darkMode ? 'bg-amber-500' : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              >
+                <motion.span
+                  animate={{ x: settings.darkMode ? 20 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="inline-block h-4 w-4 transform rounded-full bg-white shadow-lg"
+                />
+              </motion.button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={handleSave}
-          className="flex items-center justify-center py-3 px-4 rounded-md bg-amber-600 hover:bg-amber-700 text-white font-semibold shadow w-full sm:w-auto"
+          onClick={handleSaveSettings}
+          disabled={loading}
+          className={`flex-1 py-3 px-6 rounded-lg font-semibold transition duration-300 flex items-center justify-center ${
+            loading
+              ? 'bg-gray-300 dark:bg-gray-600 cursor-not-allowed text-gray-500 dark:text-gray-400'
+              : 'bg-amber-500 hover:bg-amber-600 text-white'
+          }`}
         >
-          <Save className="h-5 w-5 mr-2" />
-          Save Preferences
+          {loading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <span className="text-sm sm:text-base">Saving...</span>
+            </>
+          ) : (
+            <>
+              <Save className="h-4 w-4 mr-2" />
+              <span className="text-sm sm:text-base">Save Settings</span>
+            </>
+          )}
         </motion.button>
+
         <motion.button
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          onClick={handleReset}
-          className="flex items-center justify-center py-3 px-4 rounded-md bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 shadow w-full sm:w-auto"
+          onClick={resetToDefaults}
+          className="flex-1 py-3 px-6 rounded-lg font-semibold transition duration-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 flex items-center justify-center"
         >
-          <RefreshCw className="h-5 w-5 mr-2" />
-          Reset Defaults
+          <RotateCcw className="h-4 w-4 mr-2" />
+          <span className="text-sm sm:text-base">Reset to Defaults</span>
         </motion.button>
       </div>
 
-      {/* Info Box */}
-      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-sm sm:text-base">
-        <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2 flex items-center">
-          <Info className="h-5 w-5 mr-2" />
-          Information
-        </h4>
-        <ul className="list-disc list-inside text-blue-700 dark:text-blue-300 space-y-1">
-          <li>Your preferences are saved locally in this browser</li>
-          <li>These settings help personalize your printing experience</li>
-          <li>You can reset to default settings anytime</li>
-        </ul>
+      {/* Settings Info */}
+      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 sm:p-5">
+        <div className="flex items-start">
+          <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mr-3 mt-0.5 flex-shrink-0" />
+          <div>
+            <h4 className="text-blue-800 dark:text-blue-200 font-medium mb-1">Settings Information</h4>
+            <p className="text-blue-700 dark:text-blue-300 text-sm sm:text-base">
+              Your settings are automatically saved to your browser's local storage. 
+              These preferences will be remembered across sessions and help personalize your printing experience.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
