@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -8,13 +9,17 @@ import {
   Users,
   BarChart3,
   Clock,
+  Menu, // For mobile menu
+  X     // For mobile menu close icon
 } from "lucide-react";
 
 const HomePage = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
+      <header className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
@@ -27,7 +32,8 @@ const HomePage = () => {
                 PrintHub
               </h1>
             </div>
-            <div className="flex space-x-4">
+            {/* Desktop Menu - Hidden on mobile */}
+            <div className="hidden md:flex space-x-4 items-center">
               <Link
                 to="/login"
                 className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-amber-600 dark:hover:text-amber-400 transition-colors duration-200"
@@ -41,18 +47,31 @@ const HomePage = () => {
                 Admin Login
               </Link>
             </div>
+            {/* Mobile Menu Button - Visible only on mobile */}
+            <div className="md:hidden">
+                <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-gray-700 dark:text-gray-300">
+                    {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                </button>
+            </div>
           </div>
+          {/* Mobile Menu Dropdown */}
+          {mobileMenuOpen && (
+              <div className="md:hidden py-4 border-t border-gray-200 dark:border-gray-700">
+                  <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Student Login</Link>
+                  <Link to="/admin/login" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-2 mt-1 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700">Admin Login</Link>
+              </div>
+          )}
         </div>
       </header>
 
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
         <div className="text-center mb-16">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-5xl font-bold text-gray-900 dark:text-white mb-6"
+            className="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-6"
           >
             Welcome to <span className="text-amber-500">PrintHub</span>
           </motion.h1>
@@ -60,7 +79,7 @@ const HomePage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto"
+            className="text-lg sm:text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-3xl mx-auto"
           >
             Your one-stop solution for campus printing services. Fast, reliable,
             and convenient printing for students and administrators.
@@ -74,7 +93,7 @@ const HomePage = () => {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-shadow duration-300"
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-shadow duration-300"
           >
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full mb-6">
@@ -116,7 +135,7 @@ const HomePage = () => {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-shadow duration-300"
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-200 dark:border-gray-700 hover:shadow-2xl transition-shadow duration-300"
           >
             <div className="text-center">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-100 dark:bg-amber-900/30 rounded-full mb-6">
@@ -206,3 +225,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+

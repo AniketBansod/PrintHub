@@ -2,27 +2,21 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Clock, AlertTriangle } from "lucide-react";
 
-// 1. New Shimmer Component
+// The shimmer component is already responsive. No changes needed here.
 const OverviewShimmer = () => (
   <div>
-    {/* Shimmer for the Title */}
     <div className="h-8 w-1/3 bg-gray-200 dark:bg-gray-700 rounded-md animate-pulse mb-4"></div>
-
-    {/* Shimmer for the Stat Cards */}
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
       {Array.from({ length: 4 }).map((_, i) => (
         <div key={i} className="h-24 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
       ))}
     </div>
-
-    {/* Shimmer for the Lower Cards */}
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
       <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>
     </div>
   </div>
 );
-
 
 const OverviewSection = () => {
   const [stats, setStats] = useState({
@@ -38,7 +32,6 @@ const OverviewSection = () => {
   useEffect(() => {
     const fetchOverview = async () => {
       try {
-        // Simulating a slightly longer fetch to demonstrate the shimmer
         await new Promise(resolve => setTimeout(resolve, 1500));
         
         const response = await fetch(
@@ -61,20 +54,20 @@ const OverviewSection = () => {
     };
 
     fetchOverview();
-
     const interval = setInterval(fetchOverview, 15000);
     return () => clearInterval(interval);
   }, []);
 
-  // 2. Updated loading check to render the new Shimmer component
   if (loading) return <OverviewShimmer />;
   
   if (error) return <p className="text-red-500">Error: {error}</p>;
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">System Overview</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-100">System Overview</h2>
+      
+      {/* Responsive Grid for Stat Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard title="Total Users" value={stats.totalUsers} />
         <StatCard title="Pending Requests" value={stats.pendingRequests} />
         <StatCard title="Print Jobs Today" value={stats.totalPrintJobsToday} />
@@ -84,6 +77,7 @@ const OverviewSection = () => {
         />
       </div>
 
+      {/* Responsive Grid for Lower Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <QueuePredictionCard />
         <UrgentRequestsCard />
@@ -117,8 +111,8 @@ const QueuePredictionCard = () => {
     return <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>;
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-      <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center">
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+      <h3 className="text-lg sm:text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center">
         <Clock className="mr-2 h-5 w-5 text-blue-500" />
         Queue Prediction
       </h3>
@@ -160,8 +154,8 @@ const UrgentRequestsCard = () => {
     return <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse"></div>;
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
-      <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center">
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+      <h3 className="text-lg sm:text-xl font-semibold mb-4 text-gray-800 dark:text-gray-100 flex items-center">
         <AlertTriangle className="mr-2 h-5 w-5 text-red-500" />
         Urgent Requests
       </h3>
@@ -172,13 +166,10 @@ const UrgentRequestsCard = () => {
           {urgent.map((order) => (
             <li
               key={order._id}
-              className="flex items-center justify-between bg-red-100 dark:bg-red-900/50 p-3 rounded-md text-red-800 dark:text-red-200"
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 bg-red-100 dark:bg-red-900/50 p-3 rounded-md text-red-800 dark:text-red-200"
             >
-              <span>
-                {order.items[0]?.originalFilename ||
-                  (order.items[0]?.file
-                    ? order.items[0].file.split("/").pop()
-                    : "Untitled File")}
+              <span className="break-all">
+                {order.items[0]?.originalFilename || "Untitled File"}
                 {" - Due "}
                 {order.items[0]?.pickupTime
                   ? new Date(order.items[0].pickupTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
@@ -187,7 +178,7 @@ const UrgentRequestsCard = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-amber-500 text-gray-900 px-3 py-1 rounded-md hover:bg-amber-400"
+                className="bg-amber-500 text-gray-900 px-3 py-1 rounded-md hover:bg-amber-400 self-end sm:self-center flex-shrink-0"
               >
                 Prioritize
               </motion.button>
@@ -200,3 +191,4 @@ const UrgentRequestsCard = () => {
 };
 
 export default OverviewSection;
+

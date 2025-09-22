@@ -52,29 +52,24 @@ const AdminLoginPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 flex justify-center items-center p-4 relative">
-      {/* --- FIX: Wrapped the link in a div for better positioning --- */}
-      <div className="absolute top-8 left-8">
-        <Link
-          to="/"
-          className="flex items-center text-gray-300 hover:text-white transition-colors duration-200"
-        >
+      <div className="absolute top-4 left-4 sm:top-8 sm:left-8">
+        <Link to="/" className="flex items-center text-gray-300 hover:text-white transition-colors duration-200">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Home
         </Link>
       </div>
-      {/* --- END OF FIX --- */}
 
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md"
+        className="bg-gray-800 p-6 sm:p-8 rounded-lg shadow-2xl w-full max-w-md"
       >
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-amber-500 rounded-full mb-4">
             <Shield className="h-8 w-8 text-gray-900" />
           </div>
-          <h1 className="text-3xl font-bold text-amber-400 mb-2">
+          <h1 className="text-2xl sm:text-3xl font-bold text-amber-400 mb-2">
             Admin Portal
           </h1>
           <p className="text-gray-300">Secure access to PrintHub management</p>
@@ -105,7 +100,7 @@ const AdminLoginPage = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent transition-all duration-200"
-              placeholder="admin@PrintHub.com"
+              placeholder="admin@printhub.com"
               required
             />
           </div>

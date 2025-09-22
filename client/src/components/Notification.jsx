@@ -44,13 +44,14 @@ const Notification = ({ notification, onRemove }) => {
 
   return (
     <motion.div
+      layout
       initial={{ opacity: 0, y: -50, scale: 0.3 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
-      className={`${getBgColor()} ${getTextColor()} border rounded-lg p-4 shadow-lg max-w-sm w-full`}
+      className={`${getBgColor()} ${getTextColor()} border rounded-lg p-4 shadow-lg w-full max-w-sm`}
     >
       <div className="flex items-start">
-        <div className="flex-shrink-0">
+        <div className="flex-shrink-0 pt-0.5">
           {getIcon()}
         </div>
         <div className="ml-3 flex-1">
@@ -63,7 +64,7 @@ const Notification = ({ notification, onRemove }) => {
             onClick={() => onRemove(notification.id)}
             className="inline-flex text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           >
-            <X className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </button>
         </div>
       </div>
@@ -73,7 +74,10 @@ const Notification = ({ notification, onRemove }) => {
 
 const NotificationContainer = ({ notifications, onRemove }) => {
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    // This container is now responsive.
+    // On mobile (default): It's positioned top-center.
+    // On small screens and up (sm:): It moves to the top-right.
+    <div className="fixed top-4 left-4 right-4 sm:left-auto sm:right-4 z-50 space-y-2 flex flex-col items-center sm:items-end">
       <AnimatePresence>
         {notifications.map((notification) => (
           <Notification

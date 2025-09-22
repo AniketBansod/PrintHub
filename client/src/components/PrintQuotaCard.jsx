@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react"
-import { TrendingUp, Calendar, Loader2 } from "lucide-react"
+import { useState, useEffect } from "react";
+import { TrendingUp, Calendar, Loader2, AlertCircle } from "lucide-react";
 
 const PrintQuotaCard = () => {
   const [quota, setQuota] = useState({
@@ -20,7 +20,6 @@ const PrintQuotaCard = () => {
           throw new Error('Please login to view quota');
         }
 
-        // Fetch user orders
         const response = await fetch('http://localhost:5000/api/orders', {
           headers: {
             'Authorization': `Bearer ${token}`
@@ -33,7 +32,6 @@ const PrintQuotaCard = () => {
 
         const orders = await response.json();
         
-        // Calculate monthly usage
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
         let monthlyUsage = 0;
@@ -47,7 +45,6 @@ const PrintQuotaCard = () => {
           }
         });
 
-        // Calculate days remaining in month
         const now = new Date();
         const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
         const daysRemaining = lastDayOfMonth.getDate() - now.getDate();
@@ -59,7 +56,6 @@ const PrintQuotaCard = () => {
         });
 
       } catch (err) {
-        console.error('Error fetching quota:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -73,12 +69,12 @@ const PrintQuotaCard = () => {
 
   if (loading) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="flex items-center mb-4">
           <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg mr-3">
             <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-400" />
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Print Quota</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">Print Quota</h2>
         </div>
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-6 w-6 animate-spin text-orange-500 mr-2" />
@@ -90,32 +86,34 @@ const PrintQuotaCard = () => {
 
   if (error) {
     return (
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+      <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
         <div className="flex items-center mb-4">
           <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg mr-3">
             <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-400" />
           </div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Print Quota</h2>
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">Print Quota</h2>
         </div>
         <div className="text-center text-red-500 dark:text-red-400 py-4">
-          <p>Error loading quota: {error}</p>
+          <AlertCircle className="mx-auto h-8 w-8 mb-2"/>
+          <p className="font-semibold">Error loading quota</p>
+          <p className="text-sm">{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+    <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
       <div className="flex items-center mb-4">
         <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg mr-3">
           <TrendingUp className="h-5 w-5 text-orange-600 dark:text-orange-400" />
         </div>
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Print Quota</h2>
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-gray-100">Print Quota</h2>
       </div>
       
       <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
         <div className="mb-3">
-          <div className="flex justify-between mb-2">
+          <div className="flex justify-between mb-2 text-sm">
             <span className="text-gray-700 dark:text-gray-300 font-medium">Monthly Usage</span>
             <span className="text-gray-600 dark:text-gray-400 font-medium">
               {quota.monthlyUsage} / {quota.monthlyLimit} pages
@@ -143,13 +141,14 @@ const PrintQuotaCard = () => {
         </div>
         
         {usagePercentage > 80 && (
-          <div className="mt-3 p-2 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded text-yellow-800 dark:text-yellow-200 text-sm">
-            ⚠️ You're approaching your monthly limit
+          <div className="mt-3 p-2 bg-yellow-100 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-700 rounded text-yellow-800 dark:text-yellow-200 text-sm flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 flex-shrink-0" />
+            <span>You're approaching your monthly limit.</span>
           </div>
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default PrintQuotaCard
+export default PrintQuotaCard;

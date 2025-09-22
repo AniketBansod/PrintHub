@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Clock, AlertTriangle, RefreshCw, LogOut } from 'lucide-react';
+import { Clock, AlertTriangle, RefreshCw, LogOut, Menu, X } from 'lucide-react';
 import useServiceStatus from '../hooks/useServiceStatus';
 
 const ShopClosedPage = () => {
   const { serviceStatus, loading, refetch } = useServiceStatus();
   const navigate = useNavigate();
   const [timeLeft, setTimeLeft] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false); // State for mobile menu
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
@@ -54,7 +55,7 @@ const ShopClosedPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto mb-4"></div>
           <p className="text-gray-300">Checking service status...</p>
@@ -65,7 +66,7 @@ const ShopClosedPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
-      {/* Header */}
+      {/* --- Responsive Header --- */}
       <header className="bg-gray-800 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
@@ -75,9 +76,10 @@ const ShopClosedPage = () => {
                 alt="PrintHub Logo"
                 className="h-10 w-10 mr-3"
               />
-              <h1 className="text-2xl font-bold text-amber-400">PrintHub</h1>
+              <h1 className="text-xl sm:text-2xl font-bold text-amber-400">PrintHub</h1>
             </div>
-            <div className="flex items-center space-x-4">
+            {/* Desktop Buttons */}
+            <div className="hidden md:flex items-center space-x-4">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -97,36 +99,51 @@ const ShopClosedPage = () => {
                 Logout
               </motion.button>
             </div>
+            {/* Mobile Menu Button */}
+            <div className="md:hidden">
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-gray-300">
+                {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              </button>
+            </div>
           </div>
+          {/* Mobile Menu Dropdown */}
+          {mobileMenuOpen && (
+            <div className="md:hidden pb-4 space-y-2">
+              <motion.button onClick={handleRefresh} className="w-full flex items-center px-4 py-2 text-left bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600">
+                <RefreshCw className="h-4 w-4 mr-2" /> Refresh
+              </motion.button>
+              <motion.button onClick={handleLogout} className="w-full flex items-center px-4 py-2 text-left bg-red-600 text-white rounded-md hover:bg-red-700">
+                <LogOut className="h-4 w-4 mr-2" /> Logout
+              </motion.button>
+            </div>
+          )}
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* --- Responsive Main Content --- */}
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          {/* Status Icon */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
             className="mb-8"
           >
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-red-900 rounded-full border-4 border-red-600">
-              <AlertTriangle className="h-12 w-12 text-red-400" />
+            <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 bg-red-900 rounded-full border-4 border-red-600">
+              <AlertTriangle className="h-10 w-10 sm:h-12 sm:w-12 text-red-400" />
             </div>
           </motion.div>
 
-          {/* Main Message */}
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-4xl font-bold text-red-400 mb-4"
+            className="text-3xl sm:text-4xl font-bold text-red-400 mb-4"
           >
             Service Temporarily Unavailable
           </motion.h1>
@@ -135,41 +152,39 @@ const ShopClosedPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
-            className="text-xl text-gray-300 mb-8"
+            className="text-lg sm:text-xl text-gray-300 mb-8"
           >
             PrintHub is currently closed
           </motion.p>
 
-          {/* Reason Box */}
           {serviceStatus.reason && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
-              className="bg-red-900 border border-red-600 rounded-lg p-6 mb-8 max-w-2xl mx-auto"
+              className="bg-red-900 border border-red-600 rounded-lg p-4 sm:p-6 mb-8 max-w-2xl mx-auto"
             >
               <h3 className="text-lg font-semibold text-red-300 mb-3 flex items-center justify-center">
                 <AlertTriangle className="h-5 w-5 mr-2" />
                 Reason for Closure
               </h3>
-              <p className="text-red-200 text-lg leading-relaxed">
+              <p className="text-red-200 text-base sm:text-lg leading-relaxed">
                 {serviceStatus.reason}
               </p>
             </motion.div>
           )}
 
-          {/* Status Information */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
-            className="bg-gray-800 border border-gray-700 rounded-lg p-6 mb-8 max-w-2xl mx-auto"
+            className="bg-gray-800 border border-gray-700 rounded-lg p-4 sm:p-6 mb-8 max-w-2xl mx-auto"
           >
             <div className="flex items-center justify-center mb-4">
               <Clock className="h-5 w-5 text-gray-400 mr-2" />
               <span className="text-gray-400">Last Updated</span>
             </div>
-            <p className="text-gray-300 text-lg">
+            <p className="text-gray-300 text-base sm:text-lg">
               {new Date(serviceStatus.updatedAt).toLocaleString()}
             </p>
             {timeLeft && (
@@ -178,51 +193,6 @@ const ShopClosedPage = () => {
               </p>
             )}
           </motion.div>
-
-          {/* Instructions */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="bg-blue-900 border border-blue-600 rounded-lg p-6 max-w-2xl mx-auto"
-          >
-            <h3 className="text-lg font-semibold text-blue-200 mb-4">
-              What to do next?
-            </h3>
-            <ul className="text-blue-300 text-left space-y-2">
-              <li className="flex items-start">
-                <span className="text-blue-400 mr-2">•</span>
-                <span>Please check back later when the service resumes</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-400 mr-2">•</span>
-                <span>You can refresh this page to check for updates</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-400 mr-2">•</span>
-                <span>Contact the admin if you have urgent printing needs</span>
-              </li>
-              <li className="flex items-start">
-                <span className="text-blue-400 mr-2">•</span>
-                <span>Your existing orders will continue to be processed</span>
-              </li>
-            </ul>
-          </motion.div>
-
-          {/* Auto-refresh indicator */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="mt-8 text-center"
-          >
-            <p className="text-gray-500 text-sm">
-              This page will automatically refresh every 30 seconds
-            </p>
-            <p className="text-gray-600 text-xs mt-1">
-              You will be redirected to the dashboard when the service resumes
-            </p>
-          </motion.div>
         </motion.div>
       </main>
     </div>
@@ -230,3 +200,4 @@ const ShopClosedPage = () => {
 };
 
 export default ShopClosedPage;
+

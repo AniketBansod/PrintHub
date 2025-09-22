@@ -13,8 +13,6 @@ const AuthSuccess = () => {
       localStorage.setItem('token', token);
       
       // Redirect the user to their dashboard
-      // You might want to fetch the user profile here to decide
-      // between student/admin dashboard if needed in the future.
       navigate('/student/dashboard');
     } else {
       // If no token is found, redirect to login with an error
@@ -24,10 +22,10 @@ const AuthSuccess = () => {
   }, [searchParams, navigate]);
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col justify-center items-center text-white">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mb-4"></div>
-      <h1 className="text-xl font-semibold">Authenticating</h1>
-      <p className="text-gray-400">Please wait while we sign you in...</p>
+    <div className="min-h-screen bg-gray-900 flex flex-col justify-center items-center text-white p-4">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mb-6"></div>
+      <h1 className="text-xl sm:text-2xl font-semibold text-center">Authenticating</h1>
+      <p className="text-gray-400 text-center mt-2">Please wait while we sign you in...</p>
     </div>
   );
 };

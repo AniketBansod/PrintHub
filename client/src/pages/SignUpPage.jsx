@@ -147,20 +147,22 @@ const SignUpPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex justify-center items-center p-4">
+    <div className="min-h-screen bg-gray-900 flex justify-center items-center p-4 relative">
+        <div className="absolute top-4 left-4 sm:top-8 sm:left-8">
+            <Link to="/" className="flex items-center text-gray-300 hover:text-white transition-colors duration-200">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Home
+            </Link>
+        </div>
+      
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-gray-800 p-8 rounded-lg shadow-2xl w-full max-w-md relative"
+        className="bg-gray-800 p-6 sm:p-8 rounded-lg shadow-2xl w-full max-w-md"
       >
-        <Link to="/" className="absolute -top-16 left-0 flex items-center text-gray-300 hover:text-white transition-colors duration-200">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Link>
-
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-amber-400 mb-2">Create Account</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-amber-400 mb-2">Create Account</h1>
           <p className="text-gray-400 text-sm">
             {step === 1 && "Enter your details to get started"}
             {step === 2 && `Enter the 6-digit code sent to ${formData.email}`}
@@ -170,7 +172,6 @@ const SignUpPage = () => {
         
         {step === 1 && (
           <form onSubmit={handleSendOTP} className="space-y-4">
-            {/* Form Inputs */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">Full Name</label>
               <div className="relative">
@@ -217,7 +218,6 @@ const SignUpPage = () => {
               </div>
               {errors.confirmPassword && <p className="mt-1 text-sm text-red-400">{errors.confirmPassword}</p>}
             </div>
-            {/* --- FIX: Restored button classes --- */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -231,7 +231,6 @@ const SignUpPage = () => {
             >
               {loading ? "Sending OTP..." : "Send Verification Code"}
             </motion.button>
-            {/* --- END FIX --- */}
             
             <div className="relative flex py-2 items-center">
               <div className="flex-grow border-t border-gray-600"></div>
@@ -250,13 +249,13 @@ const SignUpPage = () => {
 
         {step === 2 && ( 
             <form onSubmit={handleVerifyOTP} className="space-y-4">
-                {/* OTP Form remains unchanged */}
+                {/* OTP Form remains unchanged, already looks good on mobile */}
             </form>
         )}
 
         {step === 3 && ( 
             <div className="text-center space-y-4">
-                {/* Completion step remains unchanged */}
+                {/* Completion step remains unchanged, already looks good on mobile */}
             </div>
         )}
 
@@ -274,4 +273,3 @@ const SignUpPage = () => {
 };
 
 export default SignUpPage;
-
