@@ -10,7 +10,7 @@
   "scripts": {
     "start": "cross-env NODE_ENV=production node server.js",
     "dev": "nodemon server.js",
-    "install-client": "cd ../client && npm install",
+    "install-client": "cd ../client && npm install --include=dev",
     "build-client": "cd ../client && npm run build",
     "copy-build": "npx copyfiles -u 1 ../client/dist/** ./build",
     "build": "npx npm-run-all install-client build-client copy-build",
