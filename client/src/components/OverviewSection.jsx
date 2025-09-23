@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API, authHeaders } from "../lib/api";
 import { motion } from "framer-motion";
 import { Clock, AlertTriangle } from "lucide-react";
 
@@ -35,12 +36,8 @@ const OverviewSection = () => {
         await new Promise(resolve => setTimeout(resolve, 1500));
         
         const response = await fetch(
-          "http://localhost:5000/api/admin/overview",
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
+          `${API}/api/admin/overview`,
+          { headers: { ...authHeaders() } }
         );
         const data = await response.json();
         if (!response.ok) throw new Error(data.message);
@@ -98,9 +95,7 @@ const QueuePredictionCard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/admin/queue-prediction", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    })
+    fetch(`${API}/api/admin/queue-prediction`, { headers: { ...authHeaders() } })
       .then((res) => res.json())
       .then((data) => setSlots(data))
       .catch(() => setSlots({}))
@@ -141,9 +136,7 @@ const UrgentRequestsCard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/admin/urgent-requests", {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    })
+    fetch(`${API}/api/admin/urgent-requests`, { headers: { ...authHeaders() } })
       .then((res) => res.json())
       .then((data) => setUrgent(data))
       .catch(() => setUrgent([]))

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { API } from "../lib/api";
 import { TrendingUp, Calendar, Loader2, AlertCircle } from "lucide-react";
 
 const PrintQuotaCard = () => {
@@ -20,7 +21,7 @@ const PrintQuotaCard = () => {
           throw new Error('Please login to view quota');
         }
 
-        const response = await fetch('http://localhost:5000/api/orders', {
+        const response = await fetch(`${API}/api/orders`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { User, Mail, Calendar, Lock, Eye, EyeOff, Save, AlertCircle } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
+import { API } from "../lib/api";
 
 const ProfileSection = () => {
   const [user, setUser] = useState(null);
@@ -31,7 +32,7 @@ const ProfileSection = () => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('http://localhost:5000/api/auth/profile', {
+      const response = await fetch(`${API}/api/auth/profile`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -79,7 +80,7 @@ const ProfileSection = () => {
     setIsChangingPassword(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/auth/change-password', {
+      const response = await fetch(`${API}/api/auth/change-password`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

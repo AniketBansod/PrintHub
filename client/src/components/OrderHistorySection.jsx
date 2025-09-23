@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API } from "../lib/api";
 import { motion } from 'framer-motion';
 import { History, Calendar, DollarSign, FileText, Clock, AlertCircle } from "lucide-react";
 
@@ -52,7 +53,7 @@ const OrderHistorySection = () => {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('Please login to view orders');
 
-        const response = await fetch('http://localhost:5000/api/orders', {
+        const response = await fetch(`${API}/api/orders`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 

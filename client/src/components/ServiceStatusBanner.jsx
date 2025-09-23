@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { API } from "../lib/api";
 
 const ServiceStatusBanner = () => {
   const [serviceStatus, setServiceStatus] = useState({
@@ -12,7 +13,7 @@ const ServiceStatusBanner = () => {
   useEffect(() => {
     const fetchServiceStatus = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/service-status');
+        const response = await fetch(`${API}/api/service-status`);
         const data = await response.json();
         setServiceStatus(data);
       } catch (error) {

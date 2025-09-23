@@ -4,6 +4,7 @@ import { User, Mail, Lock, Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-re
 import { Link, useNavigate } from "react-router-dom";
 import { useNotification } from "../context/NotificationContext";
 import { useTheme } from "../context/ThemeContext"; // use the same theme hook you've been using
+import { API } from "../lib/api";
 
 // A simple inline SVG for the Google G logo
 const GoogleIcon = () => (
@@ -60,7 +61,7 @@ const SignUpPage = () => {
     if (!validateForm()) return;
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/auth/send-otp", {
+      const response = await fetch(`${API}/api/auth/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email }),
@@ -84,7 +85,7 @@ const SignUpPage = () => {
     }
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/auth/verify-otp", {
+      const response = await fetch(`${API}/api/auth/verify-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email, otp: otp }),
@@ -107,7 +108,7 @@ const SignUpPage = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/auth/register", {
+      const response = await fetch(`${API}/api/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -132,7 +133,7 @@ const SignUpPage = () => {
   const handleResendOTP = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/auth/send-otp", {
+      const response = await fetch(`${API}/api/auth/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: formData.email }),
@@ -276,7 +277,7 @@ const SignUpPage = () => {
             </div>
 
             <a
-              href="http://localhost:5000/api/auth/google"
+              href={`${API}/api/auth/google`}
               className={`w-full flex items-center justify-center py-3 px-4 rounded-lg font-semibold transition duration-300 ${cardBg} hover:opacity-90 ${textColor}`}
             >
               <GoogleIcon />

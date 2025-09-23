@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { API } from "../lib/api";
 import { Download, ChevronLeft, User, Calendar, FileText, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -13,7 +14,7 @@ const AdminOrderDetails = () => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/admin/orders/${orderId}`, {
+        const response = await fetch(`${API}/api/admin/orders/${orderId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

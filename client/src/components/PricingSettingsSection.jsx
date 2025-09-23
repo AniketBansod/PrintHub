@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API, authHeaders } from "../lib/api";
 import { motion } from 'framer-motion';
 import { DollarSign, Calculator, Save, AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -28,12 +29,7 @@ const PricingSettingsSection = () => {
   const fetchPricing = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/pricing/admin', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const response = await fetch(`${API}/api/pricing/admin`, { headers: { ...authHeaders() } });
       
       if (!response.ok) {
         throw new Error('Failed to fetch pricing settings');
@@ -71,13 +67,9 @@ const PricingSettingsSection = () => {
       setError('');
       setSuccess('');
       
-      const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/pricing', {
+      const response = await fetch(`${API}/api/pricing`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify(pricing)
       });
       

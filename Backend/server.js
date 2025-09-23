@@ -1,20 +1,34 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+const helmet = require('helmet');
+const compression = require('compression');
+const rateLimit = require('express-rate-limit');
 const cors = require("cors");
 const { v4: uuidv4 } = require('uuid');
-const PrintJob = require('./models/PrintJob');
+
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
+const allowedMimeTypes = require('./constants/allowedMimeTypes');
 const { Readable } = require('stream');
 const adminRouter = require("./routes/admin");
 const ordersRouter = require('./routes/orders');
 
 const app = express();
 
+app.set('trust proxy', 1);
+app.use(helmet());
+app.use(compression());
+app.use(cors({
+  origin: process.env.CLIENT_ORIGIN?.split(','),
+  credentials: true,
+  methods: ['GET','POST','PUT','DELETE','OPTIONS']
+}));
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
+
 // Middleware
 app.use(express.json());
-app.use(cors());
+// Remove duplicate CORS; already configured above
 
 // --- Cloudinary Configuration ---
 cloudinary.config({
@@ -31,18 +45,7 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
-    // Allow common document formats
-    const allowedTypes = [
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/plain',
-      'image/jpeg',
-      'image/png',
-      'image/gif'
-    ];
-    
-    if (allowedTypes.includes(file.mimetype)) {
+    if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
       cb(new Error('Invalid file type. Only PDF, DOC, DOCX, TXT, and image files are allowed.'), false);
@@ -81,7 +84,6 @@ const uploadToCloudinary = (file) => {
 // Import Routes
 const authRoutes = require("./routes/auth");
 const pricingRoutes = require("./routes/pricing");
-const printJobsRouter = require("./routes/printJobs");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/pricing", pricingRoutes);
@@ -89,7 +91,6 @@ app.use("/api/pricing", pricingRoutes);
 // Routes
 app.use('/api/orders', ordersRouter);
 app.use('/api/admin', adminRouter);
-app.use('/api/printJobs', printJobsRouter);
 
 // Add a simple upload endpoint
 app.post('/api/upload', upload.single('file'), async (req, res) => {
@@ -206,3 +207,7 @@ mongoose
 // Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(err.status || 500).json({ message: 'Internal Server Error' });
+});

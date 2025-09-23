@@ -7,6 +7,7 @@ import { RazorpayContext } from "../context/RazorpayContext";
 import { usePricing } from "../context/PricingContext";
 import useServiceStatus from "../hooks/useServiceStatus";
 import { ShoppingCart, Trash2, AlertCircle } from "lucide-react";
+import { API } from "../lib/api";
 
 // --- Responsive Shimmer Component ---
 const CartShimmer = () => (
@@ -66,7 +67,7 @@ const CartSection = () => {
       const subtotal = cartRedux.reduce((sum, item) => sum + item.price, 0);
       const gstAmount = (subtotal * priceSettings.gstPercentage) / 100;
       const totalAmount = subtotal + gstAmount;
-      const response = await fetch("http://localhost:5000/api/orders", {
+      const response = await fetch(`${API}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -88,7 +89,7 @@ const CartSection = () => {
         handler: async function (response) {
           try {
             await fetch(
-              `http://localhost:5000/api/orders/${orderData.orderId}/payment`,
+              `${API}/api/orders/${orderData.orderId}/payment`,
               {
                 method: "PUT",
                 headers: {

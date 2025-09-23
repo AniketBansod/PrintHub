@@ -34,7 +34,7 @@ router.get('/google', passport.authenticate('google', {
 
 router.get('/google/callback', 
   passport.authenticate('google', {
-    failureRedirect: 'http://localhost:5173/login?error=google_auth_failed',
+    failureRedirect: `${process.env.CLIENT_ORIGIN || 'http://localhost:5173'}/login?error=google_auth_failed`,
     session: false 
   }),
   (req, res) => {
@@ -44,7 +44,8 @@ router.get('/google/callback',
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
-    res.redirect(`http://localhost:5173/auth/success?token=${token}`);
+    const clientOrigin = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
+    res.redirect(`${clientOrigin}/auth/success?token=${token}`);
   }
 );
 

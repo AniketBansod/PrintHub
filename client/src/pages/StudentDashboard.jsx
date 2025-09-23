@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Printer, Clock, FileText, Settings, User, LogOut, Cloud, ShoppingCart, History, BarChart3, Loader2, Menu, X } from "lucide-react";
 import { usePricing } from "../context/PricingContext.jsx";
+import { API } from "../lib/api";
 import SettingsSection from "../components/SettingsSection.jsx";
 import OrderHistorySection from "../components/OrderHistorySection.jsx";
 import CartSection from "../components/CartSection.jsx";
@@ -26,7 +27,7 @@ const StudentDashboard = () => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:5000/api/auth/profile", {
+        const response = await fetch(`${API}/api/auth/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

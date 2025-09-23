@@ -12,6 +12,8 @@ const PrintJobSchema = new mongoose.Schema({
   schedule: { type: String, required: true },
   estimatedPrice: { type: Number, required: true },
   orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' }
-}, { timestamps: true });   // ✅ added
+}, { timestamps: true });
+
+PrintJobSchema.index({ orderId: 1 });
 
 module.exports = mongoose.model('PrintJob', PrintJobSchema);

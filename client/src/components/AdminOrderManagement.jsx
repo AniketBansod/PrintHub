@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API } from "../lib/api";
 import { motion } from "framer-motion";
 import { Eye, Calendar, User, DollarSign, FileText, CheckCircle, AlertCircle } from "lucide-react";
 
@@ -42,7 +43,7 @@ const AdminOrderManagement = () => {
     const fetchCompletedOrders = async () => {
       try {
         await new Promise(resolve => setTimeout(resolve, 1500));
-        const response = await fetch("http://localhost:5000/api/admin/orders/status/done", {
+        const response = await fetch(`${API}/api/admin/orders/status/done`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

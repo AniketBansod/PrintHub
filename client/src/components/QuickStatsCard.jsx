@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { BarChart3, Loader2, AlertCircle } from "lucide-react"
+import { API } from "../lib/api"
 
 const QuickStatsCard = () => {
   const [stats, setStats] = useState({
@@ -24,7 +25,7 @@ const QuickStatsCard = () => {
           throw new Error('Please login to view stats');
         }
 
-        const response = await fetch('http://localhost:5000/api/orders', {
+        const response = await fetch(`${API}/api/orders`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

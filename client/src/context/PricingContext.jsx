@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API } from "../lib/api";
 
 // Create a context for pricing
 const PricingContext = createContext();
@@ -36,7 +37,7 @@ export const PricingProvider = ({ children }) => {
         setLoading(true);
         setError(null);
         
-        const response = await fetch("http://localhost:5000/api/pricing");
+        const response = await fetch(`${API}/api/pricing`);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);

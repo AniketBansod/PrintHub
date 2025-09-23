@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { API } from "../lib/api";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AlertCircle, Mail, KeyRound, Lock, ArrowLeft } from "lucide-react";
@@ -24,7 +25,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     setLoading(true); setError(""); setSuccess("");
     try {
-      const res = await fetch("http://localhost:5000/api/auth/request-password-reset", {
+      const res = await fetch(`${API}/api/auth/request-password-reset`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email })
@@ -41,7 +42,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     setLoading(true); setError(""); setSuccess("");
     try {
-      const res = await fetch("http://localhost:5000/api/auth/verify-reset-otp", {
+      const res = await fetch(`${API}/api/auth/verify-reset-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp })
@@ -58,7 +59,7 @@ const ForgotPassword = () => {
     e.preventDefault();
     setLoading(true); setError(""); setSuccess("");
     try {
-      const res = await fetch("http://localhost:5000/api/auth/reset-password", {
+      const res = await fetch(`${API}/api/auth/reset-password`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, newPassword })

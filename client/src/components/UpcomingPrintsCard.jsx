@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { API } from "../lib/api"
 import { motion } from "framer-motion"
 import { Clock, FileText, Calendar, Loader2, AlertCircle } from "lucide-react"
 
@@ -17,7 +18,7 @@ const UpcomingPrintsCard = () => {
           throw new Error('Please login to view upcoming prints');
         }
 
-        const response = await fetch('http://localhost:5000/api/orders', {
+        const response = await fetch(`${API}/api/orders`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 

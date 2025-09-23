@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { API } from "../lib/api";
 import useServiceStatus from '../hooks/useServiceStatus';
 import { ToggleRight, Info, AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -22,7 +23,7 @@ const ServiceStatusManagement = () => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/admin/service-status', {
+      const response = await fetch(`${API}/api/admin/service-status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

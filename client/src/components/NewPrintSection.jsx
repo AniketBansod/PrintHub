@@ -5,6 +5,7 @@ import { addToCart } from "../slices/printJobSlice";
 import { usePricing } from "../context/PricingContext";
 import { Upload, FileText, X, CheckCircle, AlertCircle } from "lucide-react";
 import { useNotification } from '../context/NotificationContext';
+import { API } from "../lib/api";
 
 // Helper functions remain the same
 function parsePagesInput(input) {
@@ -140,7 +141,7 @@ const NewPrintSection = () => {
 
       const formData = new FormData();
       formData.append('file', file);
-      const uploadResponse = await fetch('http://localhost:5000/api/upload', { method: 'POST', body: formData });
+      const uploadResponse = await fetch(`${API}/api/upload`, { method: 'POST', body: formData });
       if (!uploadResponse.ok) throw new Error('Failed to upload file');
       const uploadData = await uploadResponse.json();
 

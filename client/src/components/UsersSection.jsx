@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
+import { API, authHeaders } from '../lib/api';
 import { useNavigate } from 'react-router-dom';
 import { useNotification } from '../context/NotificationContext';
 import { Users, CheckCircle } from 'lucide-react';
@@ -19,8 +20,8 @@ const UsersSection = () => {
         if (!token) throw new Error('Please login to view orders');
 
         const response = await axios.get(
-          'http://localhost:5000/api/admin/orders/status/queue',
-          { headers: { Authorization: `Bearer ${token}` } }
+          `${API}/api/admin/orders/status/queue`,
+          { headers: { ...authHeaders() } }
         );
 
         if (response.status !== 200) {
@@ -44,13 +45,10 @@ const UsersSection = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        `http://localhost:5000/api/admin/orders/${orderId}/status`,
+        `${API}/api/admin/orders/${orderId}/status`,
         { status: 'done' },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
         }
       );
 

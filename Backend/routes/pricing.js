@@ -1,5 +1,6 @@
 const express = require("express");
 const Pricing = require("../models/Pricing");
+const pricingDefaults = require('../constants/pricingDefaults');
 const authMiddleware = require("../middleware/auth");
 const router = express.Router();
 
@@ -11,17 +12,8 @@ router.get("/", async (req, res) => {
     // If no pricing exists, create default one
     if (!pricing) {
       pricing = new Pricing({
-        blackWhite: 1.0,
-        color: 2.0,
-        doubleSided: 0.5,
-        paperSizeMultipliers: {
-          A4: 1.0,
-          A3: 1.5,
-          Letter: 1.0,
-          Legal: 1.2
-        },
-        gstPercentage: 18.0,
-        updatedBy: null, // Will be set when admin updates
+        ...pricingDefaults,
+        updatedBy: null,
         version: 1
       });
       await pricing.save();
@@ -53,16 +45,7 @@ router.get("/admin", authMiddleware, async (req, res) => {
     
     if (!pricing) {
       pricing = new Pricing({
-        blackWhite: 1.0,
-        color: 2.0,
-        doubleSided: 0.5,
-        paperSizeMultipliers: {
-          A4: 1.0,
-          A3: 1.5,
-          Letter: 1.0,
-          Legal: 1.2
-        },
-        gstPercentage: 18.0,
+        ...pricingDefaults,
         updatedBy: req.user.id,
         version: 1
       });

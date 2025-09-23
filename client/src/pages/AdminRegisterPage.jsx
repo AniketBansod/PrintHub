@@ -53,7 +53,7 @@ const AdminRegisterPage = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/admin-register",
+        `${API}/api/auth/admin-register`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

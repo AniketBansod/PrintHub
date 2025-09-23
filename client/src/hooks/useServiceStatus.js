@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API } from "../lib/api";
 
 const useServiceStatus = () => {
   const [serviceStatus, setServiceStatus] = useState({
@@ -12,7 +13,7 @@ const useServiceStatus = () => {
   const fetchServiceStatus = async () => {
     try {
       setError(null);
-      const response = await fetch('http://localhost:5000/api/service-status');
+      const response = await fetch(`${API}/api/service-status`);
       
       if (!response.ok) {
         throw new Error('Failed to fetch service status');

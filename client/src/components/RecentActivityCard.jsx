@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { API } from "../lib/api"
 import { motion } from "framer-motion"
 import { Activity, Loader2, CheckCircle } from "lucide-react"
 
@@ -17,7 +18,7 @@ const RecentActivityCard = () => {
           throw new Error("Please login to view activity");
         }
 
-        const response = await fetch("http://localhost:5000/api/orders", {
+        const response = await fetch(`${API}/api/orders`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

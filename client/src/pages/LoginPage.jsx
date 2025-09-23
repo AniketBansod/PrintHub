@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, User, ArrowLeft, AlertCircle } from "lucide-react";
 import { useTheme } from "../context/ThemeContext"; // import theme context
+import { API } from "../lib/api";
 
 const GoogleIcon = () => (
   <svg className="h-5 w-5 mr-3" viewBox="0 0 48 48">
@@ -27,7 +28,7 @@ const Login = () => {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${API}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -184,7 +185,7 @@ const Login = () => {
         </div>
 
         <a
-          href="http://localhost:5000/api/auth/google"
+          href={`${API}/api/auth/google`}
           className={`w-full flex items-center justify-center py-3 px-4 rounded-lg font-semibold transition duration-300 ${cardBg} hover:opacity-90 ${textColor}`}
         >
           <GoogleIcon />
