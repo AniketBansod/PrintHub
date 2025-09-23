@@ -12,7 +12,7 @@ import {
   Key,
 } from "lucide-react";
 import { useNotification } from "../context/NotificationContext";
-import { useTheme  } from "../context/isDarkMode Context"; // isDarkMode  context
+import { useTheme  } from "../context/ThemeContext"; // isDarkMode  context
 import { API } from "../lib/api";
 
 const AdminRegisterPage = () => {

@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { User, Mail, Lock, Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useNotification } from "../context/NotificationContext";
-import { useTheme  } from "../context/isDarkMode Context"; // use the same isDarkMode  hook you've been using
+import { useTheme  } from "../context/ThemeContext"; // use the same isDarkMode  hook you've been using
 import { API } from "../lib/api";
 
 // A simple inline SVG for the Google G logo

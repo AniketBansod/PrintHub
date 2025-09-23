@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, User, ArrowLeft, AlertCircle } from "lucide-react";
-import { useTheme } from "../context/isDarkMode Context"; // import isDarkMode  context
+import { useTheme } from "../context/ThemeContext"; // import isDarkMode  context
 import { API } from "../lib/api";
 
 const GoogleIcon = () => (
