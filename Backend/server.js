@@ -199,13 +199,10 @@ app.get('/api/service-status', async (req, res) => {
 const path = require('path');
 
 // Serve static files from the React app
-app.use(express.static(path.join(__dirname, 'client/build')));
-
-// Handles all routes so React can handle routing
+app.use(express.static(path.join(__dirname, 'client', 'dist')));
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
+  res.sendFile(path.resolve(__dirname, 'client', 'dist', 'index.html'));
 });
-
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI)
