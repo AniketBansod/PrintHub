@@ -198,6 +198,14 @@ app.get('/api/service-status', async (req, res) => {
 
 const path = require('path');
 
+app.use((req, res, next) => {
+  res.setHeader(
+    'Content-Security-Policy',
+    "script-src 'self' https://checkout.razorpay.com 'unsafe-inline';"
+  );
+  next();
+});
+
 // Serve static files from the React app
 app.use(express.static(path.join(__dirname, "..", "client", "dist")));
 
