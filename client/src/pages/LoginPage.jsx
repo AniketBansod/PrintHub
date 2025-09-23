@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, User, ArrowLeft, AlertCircle } from "lucide-react";
-import { useTheme } from "../context/ThemeContext"; // import theme context
+import { useTheme } from "../context/isDarkMode Context"; // import isDarkMode  context
 import { API } from "../lib/api";
 
 const GoogleIcon = () => (
@@ -15,7 +15,7 @@ const GoogleIcon = () => (
 );
 
 const Login = () => {
-  const { theme } = useTheme();
+  const { isDarkMode  } = useTheme();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -46,12 +46,12 @@ const Login = () => {
     }
   };
 
-  // Theme-based classes
-  const bgClass = theme === "dark" ? "bg-gray-900" : "bg-gray-100";
-  const cardBg = theme === "dark" ? "bg-gray-800" : "bg-white";
-  const textColor = theme === "dark" ? "text-gray-200" : "text-gray-900";
-  const placeholderColor = theme === "dark" ? "placeholder-gray-500" : "placeholder-gray-400";
-  const borderColor = theme === "dark" ? "border-gray-700" : "border-gray-300";
+  // isDarkMode -based classes
+  const bgClass = isDarkMode  === "dark" ? "bg-gray-900" : "bg-gray-100";
+  const cardBg = isDarkMode  === "dark" ? "bg-gray-800" : "bg-white";
+  const textColor = isDarkMode  === "dark" ? "text-gray-200" : "text-gray-900";
+  const placeholderColor = isDarkMode  === "dark" ? "placeholder-gray-500" : "placeholder-gray-400";
+  const borderColor = isDarkMode  === "dark" ? "border-gray-700" : "border-gray-300";
 
   return (
     <div className={`min-h-screen ${bgClass} flex justify-center items-center p-4 relative`}>

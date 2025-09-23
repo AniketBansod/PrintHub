@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { User, Mail, Lock, Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useNotification } from "../context/NotificationContext";
-import { useTheme } from "../context/ThemeContext"; // use the same theme hook you've been using
+import { useTheme  } from "../context/isDarkMode Context"; // use the same isDarkMode  hook you've been using
 import { API } from "../lib/api";
 
 // A simple inline SVG for the Google G logo
@@ -17,7 +17,7 @@ const GoogleIcon = () => (
 );
 
 const SignUpPage = () => {
-  const { theme } = useTheme();
+  const { isDarkMode  } = useTheme ();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     name: "",
@@ -149,12 +149,12 @@ const SignUpPage = () => {
     }
   };
 
-  // Theme-based classes (same approach as your other pages)
-  const bgClass = theme === "dark" ? "bg-gray-900" : "bg-gray-100";
-  const cardBg = theme === "dark" ? "bg-gray-800" : "bg-white";
-  const textColor = theme === "dark" ? "text-gray-200" : "text-gray-900";
-  const placeholderColor = theme === "dark" ? "placeholder-gray-500" : "placeholder-gray-400";
-  const borderColor = theme === "dark" ? "border-gray-700" : "border-gray-300";
+  // isDarkMode -based classes (same approach as your other pages)
+  const bgClass = isDarkMode  === "dark" ? "bg-gray-900" : "bg-gray-100";
+  const cardBg = isDarkMode  === "dark" ? "bg-gray-800" : "bg-white";
+  const textColor = isDarkMode  === "dark" ? "text-gray-200" : "text-gray-900";
+  const placeholderColor = isDarkMode  === "dark" ? "placeholder-gray-500" : "placeholder-gray-400";
+  const borderColor = isDarkMode  === "dark" ? "border-gray-700" : "border-gray-300";
 
   return (
     <div className={`min-h-screen ${bgClass} flex justify-center items-center p-4 relative`}>
