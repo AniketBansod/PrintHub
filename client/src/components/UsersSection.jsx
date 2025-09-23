@@ -12,6 +12,7 @@ const UsersSection = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { showSuccess, showError } = useNotification();
+  const [processingOrderId, setProcessingOrderId] = useState(null);
 
   useEffect(() => {
     const fetchQueueOrders = async () => {
@@ -42,6 +43,7 @@ const UsersSection = () => {
   }, []);
 
   const handleStatusChange = async (orderId) => {
+    setProcessingOrderId(orderId);
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
@@ -57,8 +59,9 @@ const UsersSection = () => {
         showSuccess('Order status updated to Done!');
       }
     } catch (err) {
-      console.error('Error updating order status:', err);
       showError('Failed to update order status: ' + err.message);
+    } finally {
+      setProcessingOrderId(null);
     }
   };
 
@@ -130,9 +133,17 @@ const UsersSection = () => {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleStatusChange(order.orderId)}
-                          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-semibold"
+                          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-semibold flex items-center justify-center"
+                          disabled={processingOrderId === order.orderId}
                         >
-                          Mark as Done
+                          {processingOrderId === order.orderId ? (
+                            <span className="flex items-center gap-2">
+                              <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                              Marking...
+                            </span>
+                          ) : (
+                            'Mark as Done'
+                          )}
                         </motion.button>
                         <motion.button
                           whileHover={{ scale: 1.05 }}
@@ -172,9 +183,17 @@ const UsersSection = () => {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => handleStatusChange(order.orderId)}
-                    className="flex-1 px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm font-semibold"
+                    className="flex-1 px-3 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm font-semibold flex items-center justify-center"
+                    disabled={processingOrderId === order.orderId}
                   >
-                    Done
+                    {processingOrderId === order.orderId ? (
+                      <span className="flex items-center gap-2">
+                        <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></span>
+                        Marking...
+                      </span>
+                    ) : (
+                      'Done'
+                    )}
                   </motion.button>
                   <motion.button
                     whileHover={{ scale: 1.05 }}

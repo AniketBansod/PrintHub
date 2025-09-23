@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useNotification } from "../context/NotificationContext";
 import { useTheme } from "../context/ThemeContext"; // theme context
+import { API } from "../lib/api";
 
 const AdminRegisterPage = () => {
   const { theme } = useTheme(); // get current theme (light/dark)

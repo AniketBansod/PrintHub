@@ -66,6 +66,7 @@ const NewPrintSection = () => {
   const [estimatedPrice, setEstimatedPrice] = useState(0);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (pricingLoading) return;
@@ -134,14 +135,18 @@ const NewPrintSection = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setUploading(false);
     setError("");
 
     try {
       if (!file) throw new Error("Please select a file to upload");
 
+      setUploading(true); // Start upload indicator
+      showSuccess("Uploading file...");
       const formData = new FormData();
       formData.append('file', file);
       const uploadResponse = await fetch(`${API}/api/upload`, { method: 'POST', body: formData });
+      setUploading(false); // End upload indicator
       if (!uploadResponse.ok) throw new Error('Failed to upload file');
       const uploadData = await uploadResponse.json();
 
@@ -179,6 +184,7 @@ const NewPrintSection = () => {
       setEstimatedPrice(0);
       showSuccess("Print job added to cart successfully!");
     } catch (err) {
+      setUploading(false);
       showError(err.message || "Failed to add print job.");
     } finally {
       setIsSubmitting(false);
@@ -211,6 +217,12 @@ const NewPrintSection = () => {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
       <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">New Print Job</h2>
+      {uploading && (
+        <div className="mb-4 flex items-center gap-2 text-amber-600 dark:text-amber-400">
+          <span className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber-500"></span>
+          Uploading file, please wait...
+        </div>
+      )}
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
@@ -326,14 +338,14 @@ const NewPrintSection = () => {
 
         <motion.button
           whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit"
-          disabled={isSubmitting || !file || estimatedPrice === 0}
+          disabled={isSubmitting || uploading || !file || estimatedPrice === 0}
           className={`w-full py-3 px-4 rounded-lg font-semibold transition duration-300 text-base ${
-            isSubmitting || !file || estimatedPrice === 0
+            isSubmitting || uploading || !file || estimatedPrice === 0
               ? "bg-gray-300 dark:bg-gray-600 cursor-not-allowed text-gray-500 dark:text-gray-400"
               : "bg-amber-500 hover:bg-amber-600 text-white"
           }`}
         >
-          {isSubmitting ? "Adding to Cart..." : "Add to Cart"}
+          {uploading ? "Uploading..." : isSubmitting ? "Adding to Cart..." : "Add to Cart"}
         </motion.button>
       </form>
     </div>

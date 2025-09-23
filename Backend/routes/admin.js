@@ -225,30 +225,26 @@ router.put('/orders/:orderId/status', async (req, res) => {
       return res.status(404).json({ message: 'Order not found' });
     }
     
-    // Send email notification when status changes to 'done'
-    if (status === 'done') {
-      try {
-        const emailResult = await sendOrderReadyEmail(
-          order.userId.email,
-          order.userId.name,
-          order.orderId
-        );
-        
-        if (emailResult.success) {
-          console.log('Order ready email sent successfully');
-        } else {
-          console.error('Failed to send ready email:', emailResult.error);
-        }
-      } catch (emailError) {
-        console.error('Error sending ready email:', emailError);
-        // Don't fail the status update if email fails
-      }
-    }
-    
+    // Respond to client immediately
     res.json({ 
       message: 'Order status updated successfully', 
       order 
     });
+
+    // Send email notification in the background
+    if (status === 'done') {
+      sendOrderReadyEmail(order.userId.email, order.userId.name, order.orderId)
+        .then(emailResult => {
+          if (emailResult.success) {
+            console.log('Order ready email sent successfully');
+          } else {
+            console.error('Failed to send ready email:', emailResult.error);
+          }
+        })
+        .catch(emailError => {
+          console.error('Error sending ready email:', emailError);
+        });
+    }
   } catch (error) {
     console.error('Error updating order status:', error);
     res.status(500).json({ message: 'Error updating order status', error: error.message });
