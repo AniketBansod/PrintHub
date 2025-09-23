@@ -6,14 +6,12 @@ const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const cors = require("cors");
 const { v4: uuidv4 } = require('uuid');
-
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const allowedMimeTypes = require('./constants/allowedMimeTypes');
 const { Readable } = require('stream');
 const adminRouter = require("./routes/admin");
 const ordersRouter = require('./routes/orders');
-
 const app = express();
 
 app.set('trust proxy', 1);
