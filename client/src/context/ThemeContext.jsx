@@ -80,6 +80,7 @@ export const ThemeProvider = ({ children }) => {
       isDarkMode,
       toggleTheme,
       setTheme,
+      theme: isDarkMode ? "dark" : "light",
       loading
     }}>
       {children}
