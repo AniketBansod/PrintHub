@@ -12,11 +12,11 @@ import {
   Key,
 } from "lucide-react";
 import { useNotification } from "../context/NotificationContext";
-import { useTheme  } from "../context/ThemeContext"; // isDarkMode  context
+import { useTheme } from "../context/ThemeContext";
 import { API } from "../lib/api";
 
 const AdminRegisterPage = () => {
-  const { isDarkMode  } = useTheme (); // get current isDarkMode  (light/dark)
+  const { isDarkMode } = useTheme();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -79,12 +79,12 @@ const AdminRegisterPage = () => {
     }
   };
 
-  // isDarkMode -based classes
-  const bgClass = isDarkMode  === "dark" ? "bg-gray-900" : "bg-gray-100";
-  const cardBg = isDarkMode  === "dark" ? "bg-gray-800" : "bg-white";
-  const textColor = isDarkMode  === "dark" ? "text-gray-200" : "text-gray-900";
-  const placeholderColor = isDarkMode  === "dark" ? "placeholder-gray-500" : "placeholder-gray-400";
-  const borderColor = isDarkMode  === "dark" ? "border-gray-700" : "border-gray-300";
+  // Theme-based classes
+  const bgClass = isDarkMode ? "bg-gray-900" : "bg-gray-100";
+  const cardBg = isDarkMode ? "bg-gray-800" : "bg-white";
+  const textColor = isDarkMode ? "text-gray-200" : "text-gray-900";
+  const placeholderColor = isDarkMode ? "placeholder-gray-500" : "placeholder-gray-400";
+  const borderColor = isDarkMode ? "border-gray-700" : "border-gray-300";
 
   return (
     <div className={`min-h-screen ${bgClass} flex justify-center items-center p-4 relative`}>

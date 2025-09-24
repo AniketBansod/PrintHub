@@ -150,11 +150,11 @@ const SignUpPage = () => {
   };
 
   // isDarkMode -based classes (same approach as your other pages)
-  const bgClass = isDarkMode  === "dark" ? "bg-gray-900" : "bg-gray-100";
-  const cardBg = isDarkMode  === "dark" ? "bg-gray-800" : "bg-white";
-  const textColor = isDarkMode  === "dark" ? "text-gray-200" : "text-gray-900";
-  const placeholderColor = isDarkMode  === "dark" ? "placeholder-gray-500" : "placeholder-gray-400";
-  const borderColor = isDarkMode  === "dark" ? "border-gray-700" : "border-gray-300";
+  const bgClass = isDarkMode ? "bg-gray-900" : "bg-gray-100";
+  const cardBg = isDarkMode ? "bg-gray-800" : "bg-white";
+  const textColor = isDarkMode ? "text-gray-200" : "text-gray-900";
+  const placeholderColor = isDarkMode ? "placeholder-gray-500" : "placeholder-gray-400";
+  const borderColor = isDarkMode ? "border-gray-700" : "border-gray-300";
 
   return (
     <div className={`min-h-screen ${bgClass} flex justify-center items-center p-4 relative`}>
