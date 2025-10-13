@@ -12,13 +12,17 @@ const allowedMimeTypes = require('./constants/allowedMimeTypes');
 const { Readable } = require('stream');
 const adminRouter = require("./routes/admin");
 const ordersRouter = require('./routes/orders');
+const PrintJob = require('./models/PrintJob');
 const app = express();
 
 app.set('trust proxy', 1);
 app.use(helmet());
 app.use(compression());
 app.use(cors({
-  origin: process.env.CLIENT_ORIGIN?.split(','),
+  origin: (process.env.CLIENT_ORIGIN ? process.env.CLIENT_ORIGIN.split(',') : [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173'
+  ]),
   credentials: true,
   methods: ['GET','POST','PUT','DELETE','OPTIONS']
 }));
